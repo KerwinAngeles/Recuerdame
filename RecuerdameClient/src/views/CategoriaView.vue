@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-
+import Card from '../components/Card.vue'
 const categories = ref([
   {
     id: 1,
@@ -151,48 +151,22 @@ const categories = ref([
         <div
           class="absolute inset-x-0 bottom-0 p-3 bg-white/95 backdrop-blur-sm translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex gap-2 border-t border-[#e1e8f5]"
         >
-          <button
+          <Button
+            label="Editar"
+            icon="pi pi-pencil"
             class="flex-1 flex items-center justify-center gap-1.5 text-[11px] font-semibold px-3 py-2.5 rounded-xl border border-[#e1e8f5] bg-white text-[#4a5878] hover:bg-[#eef4ff] hover:border-[#bcd3ff] hover:text-[#3366ee] transition-all duration-200"
-          >
-            <i class="pi pi-pencil text-[11px]"></i>
-            Editar
-          </button>
-          <button
+          />
+
+          <Button
+            label="Eliminar"
+            icon="pi pi-trash"
             class="flex-1 flex items-center justify-center gap-1.5 text-[11px] font-semibold px-3 py-2.5 rounded-xl border border-[#e1e8f5] bg-white text-[#8a97b4] hover:bg-[#fff1f2] hover:border-[#fecdd3] hover:text-[#e11d48] transition-all duration-200"
-          >
-            <i class="pi pi-trash text-[11px]"></i>
-            Eliminar
-          </button>
+          />
         </div>
       </div>
 
       <!-- Add New Card -->
-      <div
-        class="group relative rounded-2xl border-2 border-dashed border-[#e1e8f5] min-h-[260px] flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-[#3366ee] hover:-translate-y-1.5 transition-all duration-300 overflow-hidden"
-      >
-        <div
-          class="absolute inset-0 bg-gradient-to-br from-[#3366ee]/5 to-[#10b981]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-        ></div>
-        <div class="relative flex flex-col items-center gap-3">
-          <div
-            class="w-14 h-14 rounded-full border-2 border-dashed border-[#e1e8f5] flex items-center justify-center text-[#8a97b4] text-xl group-hover:border-[#3366ee] group-hover:bg-[#3366ee] group-hover:text-white group-hover:border-solid group-hover:shadow-lg group-hover:shadow-blue-500/25 group-hover:scale-110 transition-all duration-300"
-          >
-            <i class="pi pi-plus"></i>
-          </div>
-          <div class="text-center">
-            <p
-              class="text-[13px] font-bold text-[#8a97b4] group-hover:text-[#3366ee] tracking-tight transition-colors duration-200"
-            >
-              Nueva Categoría
-            </p>
-            <p
-              class="text-[11px] text-[#cbd5e1] group-hover:text-[#8a97b4] mt-0.5 transition-colors duration-200"
-            >
-              Agregar clasificación
-            </p>
-          </div>
-        </div>
-      </div>
+      <Card title="Nueva Categoría" description="Agregar clasificación" icon="pi pi-plus"/> 
     </div>
   </div>
 </template>

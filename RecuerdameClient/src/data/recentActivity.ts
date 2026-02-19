@@ -1,0 +1,42 @@
+export const recentActivities = [
+  {
+    icon: 'pi pi-plus-circle',
+    text: 'Nuevo medicamento agregado',
+    sub: 'Ibuprofeno 400mg',
+    time: 'Hace 5 min',
+    iconBg: '#eef4ff',
+    iconColor: '#3366ee',
+  },
+  {
+    icon: 'pi pi-bell',
+    text: 'Alerta de stock bajo',
+    sub: 'Amoxicilina 500mg',
+    time: 'Hace 23 min',
+    iconBg: '#fffbeb',
+    iconColor: '#d97706',
+  },
+  {
+    icon: 'pi pi-check-circle',
+    text: 'Receta completada',
+    sub: 'Paciente #1042',
+    time: 'Hace 1h',
+    iconBg: '#ecfdf5',
+    iconColor: '#059669',
+  },
+  {
+    icon: 'pi pi-user-plus',
+    text: 'Nuevo paciente registrado',
+    sub: 'María González',
+    time: 'Hace 2h',
+    iconBg: '#eef4ff',
+    iconColor: '#3366ee',
+  },
+  {
+    icon: 'pi pi-refresh',
+    text: 'Tratamiento renovado',
+    sub: 'Metformina 850mg',
+    time: 'Hace 3h',
+    iconBg: '#ecfdf5',
+    iconColor: '#059669',
+  },
+]

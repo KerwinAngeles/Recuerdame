@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import type { Product } from '@/type'
 import ProductCard from '@/components/ProductCard.vue'
+import Card from '@/components/Card.vue'
 
 const products = ref<Product[]>([
   {
@@ -84,35 +85,7 @@ const products = ref<Product[]>([
 
       <ProductCard v-for="product in products" :key="product.id" :product="product" />
 
-      <!-- Add new card -->
-      <div
-        class="group relative rounded-[18px] border-2 border-dashed border-[#e1e8f5] min-h-[280px] flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-[#3366ee] hover:-translate-y-1 transition-all duration-300 overflow-hidden"
-      >
-        <!-- Hover glow -->
-        <div
-          class="absolute inset-0 bg-gradient-to-br from-[#3366ee]/5 to-[#10b981]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-        ></div>
-
-        <div class="relative flex flex-col items-center gap-3 text-center">
-          <div
-            class="w-14 h-14 rounded-full border-2 border-dashed border-[#e1e8f5] flex items-center justify-center text-[#8a97b4] text-xl group-hover:border-[#3366ee] group-hover:bg-[#3366ee] group-hover:text-white group-hover:border-solid group-hover:shadow-lg group-hover:shadow-blue-500/30 group-hover:scale-110 transition-all duration-300"
-          >
-            <i class="pi pi-plus"></i>
-          </div>
-          <div>
-            <p
-              class="text-[13px] font-bold text-[#8a97b4] group-hover:text-[#3366ee] tracking-tight transition-colors duration-200"
-            >
-              Agregar Medicamento
-            </p>
-            <p
-              class="text-[11px] text-[#cbd5e1] group-hover:text-[#8a97b4] mt-0.5 transition-colors duration-200"
-            >
-              Registra un nuevo tratamiento
-            </p>
-          </div>
-        </div>
-      </div>
+      <Card title="Agregar Medicamento" description="Registra un nuevo tratamiento" icon="pi pi-plus"/>
     </div>
   </div>
 </template>
