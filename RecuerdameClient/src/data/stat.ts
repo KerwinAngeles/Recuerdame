@@ -13,7 +13,7 @@ export const stats = [
   {
     title: 'Dosis de hoy',
     value: '3',
-    icon: 'pi pi-pills',
+    icon: 'pi pi-plus',
     trend: '-2 hoy',
     trendUp: false,
     iconBg: '#eef4ff',
