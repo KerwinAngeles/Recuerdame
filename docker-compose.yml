@@ -1,0 +1,25 @@
+services:
+  recuerdame:
+    
+    image: ${DOCKER_REGISTRY-}recuerdame
+    container_name: RecuerdameContenedor
+    build:
+      context: .
+      dockerfile: Recuerdame/Dockerfile
+    ports: 
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - sqlserver
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=@#PasswordSq!
+    ports:
+      - "1433:1433"
+
+    
+      
