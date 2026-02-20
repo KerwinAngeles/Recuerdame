@@ -67,6 +67,21 @@ export interface MedicamentoRequest {
    nota: string
 }
 
+export interface TomaProgramada {
+    id: number
+    medicamentoId: number
+    fechaHoraConfirmacion: Date
+    fechaHoraProgramada: Date
+    estado: boolean
+}
+
+export interface TomaProgramadaRequest {
+    id?: number
+    medicamentoId: number
+    fechaHora: Date
+    estado: boolean
+}
+
 export interface CategoriaRequest {
   id?: number
   nombre: string
