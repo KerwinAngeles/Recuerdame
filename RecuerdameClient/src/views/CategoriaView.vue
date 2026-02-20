@@ -1,13 +1,71 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import CategoriaCard from '../components/Card.vue'
+import CategoriaModal from '@/components/CategoriaModal.vue'
+import ConfirmDeleteModal from '@/components/ConfirmDeleteModal.vue'
 import { CategoryService } from '../services/categoryService';
 import type { CategoriaMedicamento } from '../types';
+import type { CategoriaRequest } from '../types';
 
 const categories = ref<CategoriaMedicamento[]>([]);
+const cantidadMedicamentosAsignadoCategoria = ref<number>(0);
+
+const showModal = ref(false)
+const showDeleteModal = ref(false)
+const modalMode = ref<'add' | 'edit'>('add')
+const selectedCategoria = ref<Partial<CategoriaMedicamento> | null>(null)
+
+const openAddModal = () => {
+  modalMode.value = 'add'
+  selectedCategoria.value = null
+  showModal.value = true
+}
+
+const openEditModal = (categoria: CategoriaMedicamento) => {
+  modalMode.value = 'edit'
+  selectedCategoria.value = { ...categoria }
+  showModal.value = true
+}
+
+const openDeleteModal = (categoria: CategoriaMedicamento) => {
+  selectedCategoria.value = categoria
+  showDeleteModal.value = true
+}
+
+const isCategoriaRequest = (data: Partial<CategoriaRequest>): data is CategoriaRequest => {
+  return !!data.id && !!data.nombre && !!data.descripcion
+}
+
+const handleSave = async (data: Partial<CategoriaRequest>) => {
+  // In a real app we would call an API here. Let's mutate local state to show it works visually.
+  if (modalMode.value === 'add') {
+    const nextId = Math.max(0, ...categories.value.map(c => c.id)) + 1
+    const newItem = { ...data, id: nextId } as CategoriaRequest 
+    await CategoryService.getInstance().createCategory(newItem);
+  } else {
+    if(isCategoriaRequest(data)){
+      const index = categories.value.findIndex(c => c.id === data.id)
+      if (index !== -1) {   
+        if(data.id){
+          CategoryService.getInstance().updateCategory(data.id, data);
+        }
+      }
+    }
+  }
+}
+
+const handleDeleteConfirm = async () => {
+  if (selectedCategoria.value?.id) {
+    const index = categories.value.findIndex(c => c.id === selectedCategoria.value?.id)
+    if (index !== -1) {
+      categories.value.splice(index, 1)
+    }
+  }
+}
 
 onMounted(async () => {
   categories.value = await CategoryService.getInstance().getCategories();
+  cantidadMedicamentosAsignadoCategoria.value = await CategoryService.getInstance().getCantidadMedicamentosAsignadoCategoria();
 })
 </script>
 
@@ -31,6 +89,7 @@ onMounted(async () => {
         </p>
       </div>
       <button
+        @click="openAddModal"
         class="self-start md:self-center inline-flex items-center gap-2 px-4 py-2.5 text-[13px] font-semibold text-white bg-gradient-to-r from-[#3366ee] to-[#1e4fd8] rounded-xl shadow-md shadow-blue-500/25 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200"
       >
         <i class="pi pi-plus text-xs"></i>
@@ -124,7 +183,7 @@ onMounted(async () => {
               ></i>
             </div>
             <span class="text-[12px] font-semibold text-[#4a5878]">
-              10 Medicamentos
+              {{ cantidadMedicamentosAsignadoCategoria ?? 0 }} Medicamentos
             </span>
           </div>
         </div>
@@ -136,19 +195,39 @@ onMounted(async () => {
           <Button
             label="Editar"
             icon="pi pi-pencil"
+            @click="openEditModal(category)"
             class="flex-1 flex items-center justify-center gap-1.5 text-[11px] font-semibold px-3 py-2.5 rounded-xl border border-[#e1e8f5] bg-white text-[#4a5878] hover:bg-[#eef4ff] hover:border-[#bcd3ff] hover:text-[#3366ee] transition-all duration-200"
           />
 
           <Button
             label="Eliminar"
             icon="pi pi-trash"
+            @click="openDeleteModal(category)"
             class="flex-1 flex items-center justify-center gap-1.5 text-[11px] font-semibold px-3 py-2.5 rounded-xl border border-[#e1e8f5] bg-white text-[#8a97b4] hover:bg-[#fff1f2] hover:border-[#fecdd3] hover:text-[#e11d48] transition-all duration-200"
           />
         </div>
       </div>
 
       <!-- Add New Card -->
-      <CategoriaCard title="Nueva Categoría" description="Agregar clasificación" icon="pi pi-plus"/> 
+      <div @click="openAddModal" class="cursor-pointer h-full">
+        <CategoriaCard title="Nueva Categoría" description="Agregar clasificación" icon="pi pi-plus" class="h-full border-dashed" /> 
+      </div>
     </div>
+
+    <!-- Modals -->
+    <CategoriaModal
+      v-model:visible="showModal"
+      :categoria="selectedCategoria"
+      :mode="modalMode"
+      @save="handleSave"
+    />
+
+    <ConfirmDeleteModal
+      v-model:visible="showDeleteModal"
+      title="Eliminar Categoría"
+      message="¿Estás seguro de que quieres eliminar esta categoría?"
+      :item-name="selectedCategoria?.nombre"
+      @confirm="handleDeleteConfirm"
+    />
   </div>
 </template>

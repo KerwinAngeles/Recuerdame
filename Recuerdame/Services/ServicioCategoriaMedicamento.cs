@@ -80,10 +80,14 @@ namespace Recuerdame.Services
 
         public async Task DeleteCategoriaMedicamento(int id)
         {
-            var categoriaMedicamento = await _repositorioCategoriaMedicamento.GetById(id)
-                                ?? throw new NotFoundException("CategoriaMedicamento", id);
+           await _repositorioCategoriaMedicamento.InactivarCategoriaMedicamento(id);
+        }
 
-            await _repositorioCategoriaMedicamento.DeleteAsync(categoriaMedicamento);
+
+        public async Task<int> CantidadDeMedicamentosAsignadoAunaCategoria()
+        {
+           var cantidad =  await _repositorioCategoriaMedicamento.CantidadDeMedicamentosAsignadoAunaCategoria();
+           return cantidad;
         }
     }
 }

@@ -1,4 +1,4 @@
-import type { CategoriaMedicamento, ApiResponse, PaginatedDatos } from "../types";
+import type { CategoriaMedicamento, ApiResponse, PaginatedDatos, CategoriaRequest } from "../types";
 import { HttpService } from "./httpservice";
 
 export class CategoryService extends HttpService {
@@ -20,18 +20,23 @@ export class CategoryService extends HttpService {
         return response.data.datos.items;
     }
 
+    async getCantidadMedicamentosAsignadoCategoria() {
+        const response = await this.http.get<ApiResponse<number>>(`${this.enpoint}/CantidadMedicamentosAsignadoCategoria`);
+        return response.data.datos;
+    }
+
     async getCategory(id: number): Promise<CategoriaMedicamento> {
         const response = await this.http.get<ApiResponse<CategoriaMedicamento>>(`${this.enpoint}/${id}`);
         return response.data.datos;
     }
 
-    async createCategory(category: any) {
-        const response = await this.http.post<ApiResponse<CategoriaMedicamento>>(this.enpoint)
+    async createCategory(category: CategoriaRequest) {
+        const response = await this.http.post<ApiResponse<CategoriaMedicamento>>(this.enpoint, category)
         return response.data.datos;
     }
 
-    async updateCategory(id: number, category: any) {
-        const response = await this.http.put<ApiResponse<CategoriaMedicamento>>(`${this.enpoint}/${id}`)
+    async updateCategory(id: number, category: CategoriaRequest) {
+        const response = await this.http.put<ApiResponse<CategoriaMedicamento>>(`${this.enpoint}/${id}`, category)
         return response.data.datos;
     }
 

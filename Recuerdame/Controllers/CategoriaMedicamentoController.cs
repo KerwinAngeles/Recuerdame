@@ -75,7 +75,21 @@ namespace Recuerdame.Controllers
         public async Task<IActionResult> DeleteCategoria(int id)
         {
             await _servicioCategoriaMedicamento.DeleteCategoriaMedicamento(id);
-            return Ok(ApiResponse<CategoriaMedicamentoResponse>.Exitoso(null!, "Categoria eliminada exitosamente."));
+            return Ok(ApiResponse<CategoriaMedicamentoResponse>.Exitoso(null!, "Categoria inactivada exitosamente."));
         }
+
+
+        /// <summary>
+        /// Obtener la cantidad de medicamento asignada a una categoria
+        /// </summary>
+        [HttpGet()]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ObtenerCantidadDeMedicamentoAsignadaUnaCategoria()
+        {
+           var resultado = await _servicioCategoriaMedicamento.CantidadDeMedicamentosAsignadoAunaCategoria();
+           return Ok(resultado);
+        }
+
     }
 }

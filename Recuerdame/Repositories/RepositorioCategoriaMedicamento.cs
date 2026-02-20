@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Recuerdame.Common;
 using Recuerdame.Dtos.CategoriaMedicamento;
+using Recuerdame.Excepciones;
 using Recuerdame.Interfaces;
 using Recuerdame.Model;
 using Recuerdame.Persistence;
@@ -47,6 +48,21 @@ namespace Recuerdame.Repositories
                 PaginaActual = filtros.Pagina,
                 TamanoPagina = filtros.TamanoPagina
             };
+        }
+
+        public async Task InactivarCategoriaMedicamento(int id)
+        {
+            var categoria = await _context.CategoriaMedicamentos.FindAsync(id)
+                ?? throw new NotFoundException("CategoriaMedicamento", id);
+            categoria.Estado = false;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> CantidadDeMedicamentosAsignadoAunaCategoria()
+        {
+            var categoria = _context.CategoriaMedicamentos
+                .Include(c => c.Medicamentos).Count();
+            return categoria;
         }
     }
 }

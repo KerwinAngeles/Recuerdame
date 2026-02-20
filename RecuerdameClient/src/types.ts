@@ -22,8 +22,8 @@ export interface ApiResponse<T> {
     errores: string[] | null;
 }
 
-export interface Product {
-    id: string
+export interface Medicamento {
+    id: number
     nombre: string
     descripcion: string
     image?: string
@@ -56,6 +56,22 @@ export interface RecentActivity {
     iconColor: string,
 }
 
+export interface MedicamentoRequest {
+   id?: number
+   nombre: string
+   descripcion: string
+   dosis: number
+   frecuenciaHora: number
+   fechaInicio: Date
+   fechaFinal: Date
+   nota: string
+}
+
+export interface CategoriaRequest {
+  id?: number
+  nombre: string
+  descripcion: string
+}
 
 export interface ChartData {
     labels: string[],

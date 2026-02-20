@@ -7,5 +7,7 @@ namespace Recuerdame.Interfaces
     public interface IRepositorioCategoriaMedicamento : IRepositorioGenerico<CategoriaMedicamento>
     {
         Task<ResultadoPaginado<CategoriaMedicamento>> GetAllFiltrado(CategoriaMedicamentoFiltros filtros);
+        Task InactivarCategoriaMedicamento(int id);
+        Task<int> CantidadDeMedicamentosAsignadoAunaCategoria();
     }
 }
