@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type Stat } from "../type";
+import { type Stat } from "../types";
 defineProps<{ stat: Stat }>()
 </script>
 

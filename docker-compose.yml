@@ -1,25 +1,30 @@
 services:
   recuerdame:
-    
-    image: ${DOCKER_REGISTRY-}recuerdame
+    image: recuerdame
     container_name: RecuerdameContenedor
     build:
       context: .
       dockerfile: Recuerdame/Dockerfile
-    ports: 
+    ports:
       - "8080:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=RecuerdameDb;User Id=sa;Password=PasswordDev123!;TrustServerCertificate=True;
     depends_on:
       - sqlserver
+    restart: always
 
   sqlserver:
+    container_name: RecuerdameSqlServer
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=@#PasswordSq!
+      - SA_PASSWORD=PasswordDev123!
     ports:
       - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
 
-    
-      
+volumes:
+  sql_data:
+

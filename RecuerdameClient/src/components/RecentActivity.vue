@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type RecentActivity } from "../type";
+import { type RecentActivity } from "../types";
 defineProps<{ recentActivity: RecentActivity[] }>()
 </script>
 

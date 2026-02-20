@@ -1,32 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import Card from '../components/Card.vue'
-const categories = ref([
-  {
-    id: 1,
-    code: 'CAT-001',
-    name: 'Analgésicos',
-    description: 'Medicamentos para aliviar el dolor leve a moderado.',
-    count: 15,
-    status: 'ACTIVE',
-  },
-  {
-    id: 2,
-    code: 'CAT-002',
-    name: 'Antibióticos',
-    description: 'Agentes antimicrobianos para tratar infecciones bacterianas.',
-    count: 22,
-    status: 'ACTIVE',
-  },
-  {
-    id: 3,
-    code: 'CAT-003',
-    name: 'Antiinflamatorios',
-    description: 'Reducen la inflamación y alivian el dolor muscular y articular.',
-    count: 10,
-    status: 'INACTIVE',
-  },
-])
+import { ref, onMounted } from 'vue'
+import CategoriaCard from '../components/Card.vue'
+import { CategoryService } from '../services/categoryService';
+import type { CategoriaMedicamento } from '../types';
+
+const categories = ref<CategoriaMedicamento[]>([]);
+
+onMounted(async () => {
+  categories.value = await CategoryService.getInstance().getCategories();
+})
 </script>
 
 <template>
@@ -88,7 +70,7 @@ const categories = ref([
               "
             >
               <i
-                class="pi pi-bookmark text-lg transition-colors"
+                class="pi pi-heart text-lg transition-colors"
                 :class="
                   category.status === 'ACTIVE'
                     ? 'text-[#3366ee]'
@@ -110,22 +92,22 @@ const categories = ref([
                 :class="category.status === 'ACTIVE' ? 'bg-[#10b981]' : 'bg-[#94a3b8]'"
               ></span>
               {{ category.status === 'ACTIVE' ? 'Activa' : 'Inactiva' }}
-            </span>
+            </span> 
           </div>
 
           <!-- Code -->
           <span class="text-[10px] font-mono font-semibold tracking-widest text-[#8a97b4] uppercase mb-1">
-            {{ category.code }}
+            {{ category.id }}
           </span>
 
           <!-- Name -->
           <h3 class="text-[15px] font-bold text-[#0d1b3e] tracking-tight mb-2 line-clamp-1">
-            {{ category.name }}
+            {{ category.nombre }}
           </h3>
 
           <!-- Description -->
           <p class="text-[13px] text-[#8a97b4] line-clamp-2 leading-relaxed flex-1 min-h-[40px]">
-            {{ category.description }}
+            {{ category.descripcion }}
           </p>
 
           <!-- Footer stat -->
@@ -142,7 +124,7 @@ const categories = ref([
               ></i>
             </div>
             <span class="text-[12px] font-semibold text-[#4a5878]">
-              {{ category.count }} Medicamentos
+              10 Medicamentos
             </span>
           </div>
         </div>
@@ -166,7 +148,7 @@ const categories = ref([
       </div>
 
       <!-- Add New Card -->
-      <Card title="Nueva Categoría" description="Agregar clasificación" icon="pi pi-plus"/> 
+      <CategoriaCard title="Nueva Categoría" description="Agregar clasificación" icon="pi pi-plus"/> 
     </div>
   </div>
 </template>

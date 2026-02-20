@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import PrimeChart from 'primevue/chart';
-import type { ChartData, ChartOptions } from '../type';
+import type { ChartData, ChartOptions } from '../types';
 
     defineProps<{
     chartData: ChartData;

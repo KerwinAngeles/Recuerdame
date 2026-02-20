@@ -1,13 +1,37 @@
+export interface CategoriaMedicamento {
+    id: number;
+    nombre: string;
+    descripcion: string;
+    status: 'ACTIVE' | 'INACTIVE';
+}
+
+export interface PaginatedDatos<T> {
+    items: T[];
+    totalRegistros: number;
+    paginaActual: number;
+    tamanoPagina: number;
+    totalPaginas: number;
+    tienePaginaAnterior: boolean;
+    tienePaginaSiguiente: boolean;
+}
+
+export interface ApiResponse<T> {
+    exito: boolean;
+    mensaje: string;
+    datos: T;
+    errores: string[] | null;
+}
+
 export interface Product {
-  id: string
-  nombre: string
-  descripcion: string
-  image?: string
-  dosis: number
-  frecuencia: string
-  fechaInicio: Date
-  fechaFin: Date
-  estado: boolean
+    id: string
+    nombre: string
+    descripcion: string
+    image?: string
+    dosis: number
+    frecuencia: string
+    fechaInicio: Date
+    fechaFin: Date
+    estado: boolean
 }
 
 export interface Stat {
@@ -110,4 +134,3 @@ export interface ChartOptions {
         },
     },
 }
-

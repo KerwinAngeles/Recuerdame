@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { Product } from '@/type'
+import type { Product } from '@/types'
 import ProductCard from '@/components/ProductCard.vue'
 import Card from '@/components/Card.vue'
 

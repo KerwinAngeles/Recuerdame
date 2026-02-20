@@ -1,3 +1,4 @@
+using System;
 using Microsoft.EntityFrameworkCore;
 using Recuerdame.Filters;
 using Recuerdame.Interfaces;
@@ -46,7 +47,28 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    var retries = 5;
+    while (retries > 0)
+    {
+        try
+        {
+            db.Database.Migrate();
+            Console.WriteLine("✅ Migraciones aplicadas correctamente.");
+            break;
+        }
+        catch (Exception ex)
+        {
+            retries--;
+            Console.WriteLine($"⏳ Esperando SQL... Reintentos restantes: {retries}");
+            Thread.Sleep(5000);
+        }
+    }
+}
+
 app.UseCors("Frontend");
 app.UseAuthorization();
 app.MapControllers();
