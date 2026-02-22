@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import ProductCard from '@/components/ProductCard.vue'
 import Card from '@/components/Card.vue'
 import MedicamentoModal from '@/components/MedicamentoModal.vue'
 import ConfirmDeleteModal from '@/components/ConfirmDeleteModal.vue'
-import { medicamentos } from '@/data/medicamento'
 import type { Medicamento, MedicamentoRequest } from '@/types'
 import { MedicamentoService } from '@/services/medicamentoService'
 
@@ -12,6 +11,7 @@ const showModal = ref(false)
 const showDeleteModal = ref(false)
 const modalMode = ref<'add' | 'edit'>('add')
 const selectedMedicamento = ref<Partial<Medicamento> | null>(null)
+const medicamentos = ref<Medicamento[]>([])
 
 const openAddModal = () => {
   modalMode.value = 'add'
@@ -34,30 +34,34 @@ const isMedicamentoRequest = (data: Partial<MedicamentoRequest>): data is Medica
   return !!data.id && !!data.nombre && !!data.descripcion
 }
 
-const handleSave = (data: Partial<MedicamentoRequest>) => {
+
+const cargarMedicamentos = async () => {
+  medicamentos.value = await MedicamentoService.getInstance().getMedicamentos()
+}
+
+const handleSave = async (data: Partial<MedicamentoRequest>) => {
   if (modalMode.value === 'add') {
     const newItem = {...data } as MedicamentoRequest
-    MedicamentoService.getInstance().createMedicamento(newItem);
+    await MedicamentoService.getInstance().createMedicamento(newItem);
   } else {
     if(isMedicamentoRequest(data)){
-      const index = medicamentos.value.findIndex(m => m.id === data.id)
-      if (index !== -1) {
         if(data.id){
-          MedicamentoService.getInstance().updateMedicamento(data.id, data)
-        } 
-      }
+          await MedicamentoService.getInstance().updateMedicamento(data.id, data)
+        }
     }
+  }
+  await cargarMedicamentos()
+}
+
+const handleDeleteConfirm = async () => {
+  if (selectedMedicamento.value?.id) {
+    await MedicamentoService.getInstance().deleteMedicamento(selectedMedicamento.value.id)
+    await cargarMedicamentos()
   }
 }
 
-const handleDeleteConfirm = () => {
-  if (selectedMedicamento.value?.id) {
-    const index = medicamentos.value.findIndex(m => m.id === selectedMedicamento.value?.id)
-    if (index !== -1) {
-      medicamentos.value.splice(index, 1)
-    }
-  }
-}
+onMounted(cargarMedicamentos)
+
 </script>
 
 <template>
@@ -107,14 +111,14 @@ const handleDeleteConfirm = () => {
       <div class="w-px h-7 bg-[#e1e8f5]"></div>
       <div class="flex items-baseline gap-2">
         <span class="text-[22px] font-extrabold text-[#059669] tracking-tight leading-none">
-          {{ medicamentos.filter((p) => p.estado).length }}
+          {{ medicamentos.filter((p) => p.estaActivo).length }}
         </span>
         <span class="text-[11px] font-semibold text-[#8a97b4] uppercase tracking-wide">Activos</span>
       </div>
       <div class="w-px h-7 bg-[#e1e8f5]"></div>
       <div class="flex items-baseline gap-2">
         <span class="text-[22px] font-extrabold text-[#94a3b8] tracking-tight leading-none">
-          {{ medicamentos.filter((p) => !p.estado).length }}
+          {{ medicamentos.filter((p) => !p.estaActivo).length }}
         </span>
         <span class="text-[11px] font-semibold text-[#8a97b4] uppercase tracking-wide">Inactivos</span>
       </div>

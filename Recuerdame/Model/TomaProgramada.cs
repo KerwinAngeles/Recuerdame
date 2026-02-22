@@ -2,7 +2,7 @@
 
 namespace Recuerdame.Model
 {
-    public class TomaProgramada
+    public class TomaProgramada : Auditoria
     {
         public int Id { get; set; }
         public int MedicamentoId { get; set; }

@@ -8,8 +8,6 @@ import type { CategoriaMedicamento } from '../types';
 import type { CategoriaRequest } from '../types';
 
 const categories = ref<CategoriaMedicamento[]>([]);
-const cantidadMedicamentosAsignadoCategoria = ref<number>(0);
-
 const showModal = ref(false)
 const showDeleteModal = ref(false)
 const modalMode = ref<'add' | 'edit'>('add')
@@ -37,10 +35,8 @@ const isCategoriaRequest = (data: Partial<CategoriaRequest>): data is CategoriaR
 }
 
 const handleSave = async (data: Partial<CategoriaRequest>) => {
-  // In a real app we would call an API here. Let's mutate local state to show it works visually.
   if (modalMode.value === 'add') {
-    const nextId = Math.max(0, ...categories.value.map(c => c.id)) + 1
-    const newItem = { ...data, id: nextId } as CategoriaRequest 
+    const newItem = { ...data } as CategoriaRequest 
     await CategoryService.getInstance().createCategory(newItem);
   } else {
     if(isCategoriaRequest(data)){
@@ -52,20 +48,18 @@ const handleSave = async (data: Partial<CategoriaRequest>) => {
       }
     }
   }
+  categories.value = await CategoryService.getInstance().getCategories();
 }
 
 const handleDeleteConfirm = async () => {
   if (selectedCategoria.value?.id) {
-    const index = categories.value.findIndex(c => c.id === selectedCategoria.value?.id)
-    if (index !== -1) {
-      categories.value.splice(index, 1)
-    }
+    await CategoryService.getInstance().deleteCategory(selectedCategoria.value.id);
   }
+  categories.value = await CategoryService.getInstance().getCategories();
 }
 
 onMounted(async () => {
   categories.value = await CategoryService.getInstance().getCategories();
-  cantidadMedicamentosAsignadoCategoria.value = await CategoryService.getInstance().getCantidadMedicamentosAsignadoCategoria();
 })
 </script>
 
@@ -109,7 +103,7 @@ onMounted(async () => {
         <div
           class="h-[3px] w-full flex-shrink-0 transition-all duration-300"
           :class="
-            category.status === 'ACTIVE'
+            category.estado == true
               ? 'bg-gradient-to-r from-[#3366ee] to-[#10b981]'
               : 'bg-[#e1e8f5]'
           "
@@ -123,7 +117,7 @@ onMounted(async () => {
             <div
               class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300"
               :class="
-                category.status === 'ACTIVE'
+                category.estado == true
                   ? 'bg-[#eef4ff] group-hover:scale-110 group-hover:-rotate-6'
                   : 'bg-[#f1f5f9] group-hover:scale-110'
               "
@@ -131,7 +125,7 @@ onMounted(async () => {
               <i
                 class="pi pi-heart text-lg transition-colors"
                 :class="
-                  category.status === 'ACTIVE'
+                  category.estado == true
                     ? 'text-[#3366ee]'
                     : 'text-[#94a3b8]'
                 "
@@ -141,16 +135,16 @@ onMounted(async () => {
             <span
               class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full leading-none"
               :class="
-                category.status === 'ACTIVE'
+                category.estado == true
                   ? 'bg-[#ecfdf5] text-[#059669]'
                   : 'bg-[#f1f5f9] text-[#64748b]'
               "
             >
               <span
                 class="w-1.5 h-1.5 rounded-full"
-                :class="category.status === 'ACTIVE' ? 'bg-[#10b981]' : 'bg-[#94a3b8]'"
+                :class="category.estado == true ? 'bg-[#10b981]' : 'bg-[#94a3b8]'"
               ></span>
-              {{ category.status === 'ACTIVE' ? 'Activa' : 'Inactiva' }}
+              {{ category.estado == true ? 'Activa' : 'Inactiva' }}
             </span> 
           </div>
 
@@ -175,15 +169,15 @@ onMounted(async () => {
           >
             <div
               class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-              :class="category.status === 'ACTIVE' ? 'bg-[#eef4ff]' : 'bg-[#f1f5f9]'"
+              :class="category.estado == true ? 'bg-[#eef4ff]' : 'bg-[#f1f5f9]'"
             >
               <i
                 class="pi pi-box text-[11px]"
-                :class="category.status === 'ACTIVE' ? 'text-[#3366ee]' : 'text-[#94a3b8]'"
+                :class="category.estado == true ? 'text-[#3366ee]' : 'text-[#94a3b8]'"
               ></i>
             </div>
             <span class="text-[12px] font-semibold text-[#4a5878]">
-              {{ cantidadMedicamentosAsignadoCategoria ?? 0 }} Medicamentos
+              {{ category.cantidadMedicamentoAsignadoAunaCategoria }} Medicamentos
             </span>
           </div>
         </div>

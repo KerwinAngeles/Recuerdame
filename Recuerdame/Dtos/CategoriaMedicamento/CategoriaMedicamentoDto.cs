@@ -6,6 +6,8 @@
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
         public List<string> NombreMedicamentos { get; set; }
+        public bool Estado { get; set; }
+        public int CantidadMedicamentoAsignadoAunaCategoria { get; set; }
 
     }
 }

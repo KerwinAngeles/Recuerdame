@@ -25,6 +25,8 @@ namespace Recuerdame.Services
 
             var items = resultado.Items.Select(m => new MedicamentoDto
             {
+                Id = m.Id,
+                CategoriaId = m.CategoriaId,
                 Nombre = m.Nombre,
                 Descripcion = m.Descripcion,
                 Dosis = m.Dosis,
@@ -32,6 +34,7 @@ namespace Recuerdame.Services
                 FechaInicio = m.FechaInicio,
                 FechaFinal = m.FechaFinal,
                 Nota = m.Nota,
+                EstaActivo = m.EstaActivo,
                 CategoriasName = m.CategoriaMedicamento is not null
                     ? [m.CategoriaMedicamento.Nombre]
                     : []
@@ -46,7 +49,7 @@ namespace Recuerdame.Services
             };
         }
 
-        public async Task<MedicamentoDto> AddMedicamento(MedicamentoRequest request)
+        public async Task<MedicamentoResponse> AddMedicamento(MedicamentoRequest request)
         {
             if (request.FechaFinal <= request.FechaInicio)
                 throw new BusinessException("La fecha final debe ser posterior a la fecha de inicio.");
@@ -56,6 +59,7 @@ namespace Recuerdame.Services
 
             var medicamento = new Medicamento
             {
+                CategoriaId = request.CategoriaId,
                 Nombre = request.Nombre,
                 Descripcion = request.Descripcion,
                 Dosis = request.Dosis,
@@ -80,15 +84,10 @@ namespace Recuerdame.Services
                 fechaActual = fechaActual.AddHours(medicamento.FrecuenciaHora);
             }
 
-            return new MedicamentoDto
+            return new MedicamentoResponse
             {
-                Nombre = medicamento.Nombre,
-                Descripcion = medicamento.Descripcion,
-                Dosis = medicamento.Dosis,
-                FrecuenciaHora = medicamento.FrecuenciaHora,
-                FechaInicio = medicamento.FechaInicio,
-                FechaFinal = medicamento.FechaFinal,
-                Nota = medicamento.Nota
+                Message = "Medicamento creado exitosamente",
+                Success = true
             };
         }
 
@@ -97,6 +96,7 @@ namespace Recuerdame.Services
             var medicamento = await _repositorioMedicamento.GetById(id)
                 ?? throw new NotFoundException("Medicamento", id);
 
+            medicamento.CategoriaId = request.CategoriaId;
             medicamento.Nombre = request.Nombre;
             medicamento.Descripcion = request.Descripcion;
             medicamento.Dosis = request.Dosis;
@@ -109,6 +109,8 @@ namespace Recuerdame.Services
 
             return new MedicamentoDto
             {
+                Id = medicamento.Id,
+                CategoriaId = medicamento.CategoriaId,
                 Nombre = medicamento.Nombre,
                 Descripcion = medicamento.Descripcion,
                 Dosis = medicamento.Dosis,

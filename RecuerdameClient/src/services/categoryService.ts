@@ -20,8 +20,8 @@ export class CategoryService extends HttpService {
         return response.data.datos.items;
     }
 
-    async getCantidadMedicamentosAsignadoCategoria() {
-        const response = await this.http.get<ApiResponse<number>>(`${this.enpoint}/CantidadMedicamentosAsignadoCategoria`);
+    async getCantidadMedicamentosAsignadoCategoria(id: number) {
+        const response = await this.http.get<ApiResponse<number>>(`${this.enpoint}/ObtenerCantidadDeMedicamentosAsignadaUnaCategoria/${id}`);
         return response.data.datos;
     }
 
@@ -42,6 +42,7 @@ export class CategoryService extends HttpService {
 
     async deleteCategory(id: number) {
         const response = await this.http.delete<ApiResponse<CategoriaMedicamento>>(`${this.enpoint}/${id}`);
+        console.log(response.data.datos);
         return response.data.datos;
     }
 }

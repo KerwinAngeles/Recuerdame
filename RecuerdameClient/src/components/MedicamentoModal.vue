@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
-import type { Medicamento } from '@/types'
+import Select from 'primevue/select'
+import type { Medicamento, CategoriaMedicamento } from '@/types'
+import { CategoryService } from '@/services/categoryService'
 
 const props = defineProps<{
   visible: boolean
@@ -20,13 +22,20 @@ const formData = ref<Partial<Medicamento>>({
   nombre: '',
   descripcion: '',
   dosis: 0,
-  frecuencia: '',
+  frecuenciaHora: 0,
   fechaInicio: new Date(),
-  fechaFin: new Date(),
-  estado: true
+  fechaFinal: new Date(),
+  estado: true,
+  categoriaId: 0,
+  nota: ''
 })
 
 const errors = ref<Record<string, string>>({})
+const categorias = ref<CategoriaMedicamento[]>([])
+
+onMounted(async () => {
+  categorias.value = await CategoryService.getInstance().getCategories()
+})
 
 watch(() => props.visible, (newVal) => {
   if (newVal) {
@@ -38,10 +47,12 @@ watch(() => props.visible, (newVal) => {
         nombre: '',
         descripcion: '',
         dosis: 0,
-        frecuencia: '',
+        frecuenciaHora: 0,
         fechaInicio: new Date(),
-        fechaFin: new Date(),
-        estado: true
+        fechaFinal: new Date(),
+        estado: true,
+        categoriaId: 0,
+        nota: ''
       }
     }
   }
@@ -65,8 +76,8 @@ const save = () => {
     isValid = false
   }
 
-  if (!formData.value.frecuencia?.trim()) {
-    errors.value.frecuencia = 'La frecuencia es obligatoria.'
+  if (!formData.value.frecuenciaHora || formData.value.frecuenciaHora <= 0) {
+    errors.value.frecuenciaHora = 'La frecuencia es obligatoria.'
     isValid = false
   }
 
@@ -75,11 +86,11 @@ const save = () => {
     isValid = false
   }
 
-  if (!formData.value.fechaFin) {
-    errors.value.fechaFin = 'La fecha de fin es obligatoria.'
+  if (!formData.value.fechaFinal) {
+    errors.value.fechaFinal = 'La fecha de fin es obligatoria.'
     isValid = false
-  } else if (formData.value.fechaInicio && new Date(formData.value.fechaFin) < new Date(formData.value.fechaInicio)) {
-    errors.value.fechaFin = 'La fecha de fin no puede ser anterior a la de inicio.'
+  } else if (formData.value.fechaInicio && new Date(formData.value.fechaFinal) < new Date(formData.value.fechaInicio)) {
+    errors.value.fechaFinal = 'La fecha de fin no puede ser anterior a la de inicio.'
     isValid = false
   }
 
@@ -116,8 +127,13 @@ const save = () => {
 
       <!-- Descripción -->
       <div class="flex flex-col gap-2">
-        <label class="text-[13px] font-semibold text-[#4a5878]">Descripción / Notas</label>
+        <label class="text-[13px] font-semibold text-[#4a5878]">Descripción</label>
         <textarea v-model="formData.descripcion" rows="3" placeholder="Instrucciones especiales..." class="w-full text-sm border border-[#e1e8f5] focus:border-[#3366ee] rounded-xl px-3 py-2.5 outline-none transition-colors shadow-sm resize-none"></textarea>
+      </div>
+
+        <div class="flex flex-col gap-2">
+        <label class="text-[13px] font-semibold text-[#4a5878]">Categoria</label>
+        <Select v-model="formData.categoriaId" :options="categorias" optionLabel="nombre" optionValue="id" placeholder="Seleccione una categoria" class="w-full text-sm border border-[#e1e8f5] focus:border-[#3366ee] rounded-xl px-3 py-2.5 outline-none transition-colors shadow-sm resize-none"></Select>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
@@ -131,8 +147,8 @@ const save = () => {
         <!-- Frecuencia -->
         <div class="flex flex-col gap-2">
             <label class="text-[13px] font-semibold text-[#4a5878]">Frecuencia <span class="text-rose-500">*</span></label>
-            <InputText v-model="formData.frecuencia" placeholder="Ej. Cada 8 horas" class="w-full text-sm border focus:border-[#3366ee] rounded-xl px-3 py-2.5 transition-colors shadow-sm" :class="errors.frecuencia ? 'border-rose-500 focus:border-rose-500' : 'border-[#e1e8f5]'" />
-            <span v-if="errors.frecuencia" class="text-rose-500 text-[11px] font-medium">{{ errors.frecuencia }}</span>
+            <input type="number" v-model.number="formData.frecuenciaHora" placeholder="Ej. Cada 8 horas" class="w-full text-sm border focus:border-[#3366ee] rounded-xl px-3 py-2.5 transition-colors shadow-sm" :class="errors.frecuenciaHora ? 'border-rose-500 focus:border-rose-500' : 'border-[#e1e8f5]'" />
+            <span v-if="errors.frecuenciaHora" class="text-rose-500 text-[11px] font-medium">{{ errors.frecuenciaHora }}</span>
         </div>
       </div>
 
@@ -147,14 +163,19 @@ const save = () => {
         <!-- Fecha Fin -->
         <div class="flex flex-col gap-2">
             <label class="text-[13px] font-semibold text-[#4a5878]">Fecha Fin <span class="text-rose-500">*</span></label>
-            <input type="date" :value="formData.fechaFin ? new Date(formData.fechaFin).toISOString().split('T')[0] : ''" @input="formData.fechaFin = new Date(($event.target as HTMLInputElement).value)" class="w-full text-sm border focus:border-[#3366ee] rounded-xl px-3 py-2.5 outline-none focus:outline-none transition-colors shadow-sm" :class="errors.fechaFin ? 'border-rose-500 focus:border-rose-500' : 'border-[#e1e8f5]'" />
-            <span v-if="errors.fechaFin" class="text-rose-500 text-[11px] font-medium">{{ errors.fechaFin }}</span>
+            <input type="date" :value="formData.fechaFinal ? new Date(formData.fechaFinal).toISOString().split('T')[0] : ''" @input="formData.fechaFinal = new Date(($event.target as HTMLInputElement).value)" class="w-full text-sm border focus:border-[#3366ee] rounded-xl px-3 py-2.5 outline-none focus:outline-none transition-colors shadow-sm" :class="errors.fechaFinal ? 'border-rose-500 focus:border-rose-500' : 'border-[#e1e8f5]'" />
+            <span v-if="errors.fechaFinal" class="text-rose-500 text-[11px] font-medium">{{ errors.fechaFinal }}</span>
         </div>
       </div>
 
       <div class="flex items-center gap-3 mt-2" v-if="mode === 'edit'">
         <input type="checkbox" id="estado" v-model="formData.estado" class="w-4 h-4 rounded text-[#3366ee] focus:ring-[#3366ee] border-[#e1e8f5]" />
         <label for="estado" class="text-[14px] font-medium text-[#0d1b3e] cursor-pointer">Tratamiento Activo</label>
+      </div>
+        <!-- Descripción -->
+      <div class="flex flex-col gap-2">
+        <label class="text-[13px] font-semibold text-[#4a5878]">Notas</label>
+        <textarea v-model="formData.nota" rows="3" placeholder="Instrucciones especiales..." class="w-full text-sm border border-[#e1e8f5] focus:border-[#3366ee] rounded-xl px-3 py-2.5 outline-none transition-colors shadow-sm resize-none"></textarea>
       </div>
 
     </div>

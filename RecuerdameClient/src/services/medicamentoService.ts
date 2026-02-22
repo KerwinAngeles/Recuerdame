@@ -17,6 +17,7 @@ export class MedicamentoService extends HttpService {
 
     async getMedicamentos(): Promise<Medicamento[]> {
         const response = await this.http.get<ApiResponse<PaginatedDatos<Medicamento>>>(this.enpoint);
+        console.log(response.data.datos.items);
         return response.data.datos.items;
     }
 
@@ -36,7 +37,7 @@ export class MedicamentoService extends HttpService {
     }
 
     async deleteMedicamento(id: number) {
-        const response = await this.http.delete<ApiResponse<Medicamento>>(`${this.enpoint}/${id}`);
+        const response = await this.http.patch<ApiResponse<Medicamento>>(`${this.enpoint}/inactivar/${id}`);
         return response.data.datos;
     }
 }

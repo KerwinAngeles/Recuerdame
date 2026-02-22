@@ -16,25 +16,19 @@ namespace Recuerdame.Services
 
         public async Task<CategoriaMedicamentoResponse> AddCategoriaMedicamento(CategoriaMedicamentoRequest categoriaMedicamentoRequest)
         {
-            var categoriaMedicamentoResponse = new CategoriaMedicamentoResponse();
-            var categoria = new CategoriaMedicamento();
-
-            try
+            var categoria = new CategoriaMedicamento
             {
-                categoria.Nombre = categoriaMedicamentoRequest.Nombre;
-                categoria.Descripcion = categoriaMedicamentoRequest.Descripcion;
-                await _repositorioCategoriaMedicamento.AddAsync(categoria);
-                categoriaMedicamentoResponse.Success = true;
-                categoriaMedicamentoResponse.Message = "Categoria creada exitosamente";
-            }
-            catch (Exception ex)
+                Nombre = categoriaMedicamentoRequest.Nombre,
+                Descripcion = categoriaMedicamentoRequest.Descripcion,
+                Estado = true
+
+            };
+            await _repositorioCategoriaMedicamento.AddAsync(categoria);
+            return new CategoriaMedicamentoResponse
             {
-                categoriaMedicamentoResponse.Success = false;
-                categoriaMedicamentoResponse.Message = ex.Message;
-            }
-
-            return categoriaMedicamentoResponse;
-
+                Success = true,
+                Message = "Categoria de medicamento agregada exitosamente."
+            };
         }
 
         public async Task<CategoriaMedicamentoDto> UpdateCategoriaMedicamento(CategoriaMedicamentoRequest categoriaMedicamentoRequest)
@@ -64,8 +58,9 @@ namespace Recuerdame.Services
             {
                 Id = ct.Id,
                 Nombre = ct.Nombre,
-                Descripcion = ct.Descripcion
-
+                Descripcion = ct.Descripcion,
+                CantidadMedicamentoAsignadoAunaCategoria = ct.Medicamentos.Count,
+                Estado = ct.Estado,
             }).ToList();
 
             return new ResultadoPaginado<CategoriaMedicamentoDto>
@@ -83,11 +78,5 @@ namespace Recuerdame.Services
            await _repositorioCategoriaMedicamento.InactivarCategoriaMedicamento(id);
         }
 
-
-        public async Task<int> CantidadDeMedicamentosAsignadoAunaCategoria()
-        {
-           var cantidad =  await _repositorioCategoriaMedicamento.CantidadDeMedicamentosAsignadoAunaCategoria();
-           return cantidad;
-        }
     }
 }

@@ -5,6 +5,7 @@ namespace Recuerdame.Dtos.Medicamento
     public class MedicamentoRequest
     {
         public int Id { get; set; }
+        public int CategoriaId { get; set; }
         public string Nombre { get; set; }
         public string Descripcion { get; set; }
         public int Dosis { get; set; }

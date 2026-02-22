@@ -1,6 +1,6 @@
 ﻿namespace Recuerdame.Model
 {
-    public class Medicamento
+    public class Medicamento : Auditoria
     {
         public int Id { get; set; }
         public int CategoriaId { get; set; }

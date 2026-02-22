@@ -9,6 +9,8 @@ import Button from '../components/Button.vue'
 import { Bar } from 'vue-chartjs'
 import { Chart as ChartJS, Title, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Filler, BarElement } from 'chart.js'
 import { chartData } from '@/data/chart.ts'
+import TomaProgramadaSection from '../components/TomaProgramadaSection.vue'
+import { medicamentosConTomas } from '../data/tomasProgramadas.ts'
 
 const chartOptions = ref<ChartOptions | null>(null)
   ChartJS.register(
@@ -60,7 +62,7 @@ onMounted(() => {
   }
 })
 
-const activeChip = ref('7D')
+
 </script>
 
 <template>
@@ -101,5 +103,9 @@ const activeChip = ref('7D')
         <RecentActivity :recentActivity="recentActivities" />
       </div>
     </div>
+
+    <!-- ── Tomas Programadas ─────────────────────────────── -->
+    <TomaProgramadaSection :medicamentos="medicamentosConTomas" />
+
   </div>
 </template>

@@ -44,7 +44,7 @@ namespace Recuerdame.Controllers
             var medicamento = await _servicioMedicamento.AddMedicamento(request);
             return CreatedAtAction(
                 nameof(GetMedicamentos),
-                ApiResponse<MedicamentoDto>.Exitoso(medicamento, "Medicamento creado exitosamente."));
+                ApiResponse<MedicamentoResponse>.Exitoso(medicamento, medicamento.Message));
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace Recuerdame.Controllers
         /// <summary>
         /// Inactiva un medicamento por su ID.
         /// </summary>
-        [HttpPatch("{id:int}/inactivar")]
+        [HttpPatch("inactivar/{id:int}")]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> InactivarMedicamento(int id)

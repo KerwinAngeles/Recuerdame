@@ -64,6 +64,7 @@ namespace Recuerdame.Repositories
             var items = await query
                 .Skip((filtros.Pagina - 1) * filtros.TamanoPagina)
                 .Take(filtros.TamanoPagina)
+                .Where(m => m.EstaActivo) 
                 .ToListAsync();
 
             return new ResultadoPaginado<Medicamento>

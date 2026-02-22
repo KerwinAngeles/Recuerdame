@@ -19,7 +19,7 @@ const emit = defineEmits<{
 const formData = ref<Partial<CategoriaMedicamento>>({
   nombre: '',
   descripcion: '',
-  status: 'ACTIVE'
+  estado: true
 })
 
 const errors = ref<Record<string, string>>({})
@@ -33,7 +33,7 @@ watch(() => props.visible, (newVal) => {
       formData.value = {
         nombre: '',
         descripcion: '',
-        status: 'ACTIVE'
+        estado: true
       }
     }
   }
@@ -93,8 +93,8 @@ const save = () => {
         <input 
           type="checkbox" 
           id="status" 
-          :checked="formData.status === 'ACTIVE'"
-          @change="formData.status = ($event.target as HTMLInputElement).checked ? 'ACTIVE' : 'INACTIVE'" 
+          :checked="formData.estado === true"
+          @change="formData.estado = ($event.target as HTMLInputElement).checked ? true : false" 
           class="w-4 h-4 rounded text-[#3366ee] focus:ring-[#3366ee] border-[#e1e8f5]" 
         />
         <label for="status" class="text-[14px] font-medium text-[#0d1b3e] cursor-pointer">Categoría Activa</label>

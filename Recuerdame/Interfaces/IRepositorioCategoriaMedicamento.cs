@@ -8,6 +8,5 @@ namespace Recuerdame.Interfaces
     {
         Task<ResultadoPaginado<CategoriaMedicamento>> GetAllFiltrado(CategoriaMedicamentoFiltros filtros);
         Task InactivarCategoriaMedicamento(int id);
-        Task<int> CantidadDeMedicamentosAsignadoAunaCategoria();
     }
 }

@@ -39,6 +39,7 @@ namespace Recuerdame.Repositories
             var items = await query
                 .Skip((filtros.Pagina - 1) * filtros.TamanoPagina)
                 .Take(filtros.TamanoPagina)
+                .Where(c => c.Estado)
                 .ToListAsync();
 
             return new ResultadoPaginado<CategoriaMedicamento>
@@ -56,13 +57,6 @@ namespace Recuerdame.Repositories
                 ?? throw new NotFoundException("CategoriaMedicamento", id);
             categoria.Estado = false;
             await _context.SaveChangesAsync();
-        }
-
-        public async Task<int> CantidadDeMedicamentosAsignadoAunaCategoria()
-        {
-            var categoria = _context.CategoriaMedicamentos
-                .Include(c => c.Medicamentos).Count();
-            return categoria;
         }
     }
 }

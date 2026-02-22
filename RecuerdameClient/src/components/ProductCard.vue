@@ -22,7 +22,7 @@ defineEmits<{
       <div class="flex flex-col gap-1.5 pt-0.5">
         <span class="inline-flex items-center gap-[0.3rem] text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-1 rounded-[6px] leading-none bg-[#fffbeb] text-[#b45309]">
           <i class="pi pi-clock text-[9px]"></i>
-          {{ product.frecuencia }}
+          {{ product.frecuenciaHora }}
         </span>
         <span class="inline-flex items-center gap-[0.3rem] text-[10px] font-bold uppercase tracking-[0.06em] px-2 py-1 rounded-[6px] leading-none bg-[#eef4ff] text-[#3366ee]">
           <i class="pi pi-chart-bar text-[9px]"></i>
@@ -42,19 +42,24 @@ defineEmits<{
       <p class="text-[12px] text-[#8a97b4] leading-relaxed line-clamp-2 min-h-[37px]">
         {{ product.descripcion }}
       </p>
+      <p class="text-[12px] text-[#8a97b4] leading-relaxed line-clamp-2 min-h-[37px]">
+        {{ product.CategoriasName }}
+      </p>
     </div>
 
     <!-- Status -->
     <div class="px-5 pt-3">
+      
       <span
         class="inline-flex items-center gap-[0.375rem] text-[10px] font-bold uppercase tracking-[0.08em] px-[0.625rem] py-[0.3rem] rounded-full"
-        :class="product.estado ? 'bg-[#ecfdf5] text-[#059669]' : 'bg-[#f1f5f9] text-[#64748b]'"
+        :class="product.estaActivo ? 'bg-[#ecfdf5] text-[#059669]' : 'bg-[#f1f5f9] text-[#64748b]'"
       >
         <span
           class="w-[5px] h-[5px] rounded-full"
-          :class="product.estado ? 'bg-[#10b981]' : 'bg-[#94a3b8]'"
-        ></span>
-        {{ product.estado ? 'Activo' : 'Inactivo' }}
+          :class="product.estaActivo ? 'bg-[#10b981]' : 'bg-[#94a3b8]'"
+        >
+        </span>
+        {{ product.estaActivo ? 'Activo' : 'Inactivo' }}
       </span>
     </div>
 
@@ -81,7 +86,7 @@ defineEmits<{
         <span class="text-[9px] font-bold uppercase tracking-[0.1em] text-[#8a97b4]">Fin</span>
         <span class="text-[11px] font-semibold text-[#4a5878] mt-0.5">
           {{
-            new Date(product.fechaFin).toLocaleDateString('es', {
+            new Date(product.fechaFinal).toLocaleDateString('es', {
               day: '2-digit',
               month: 'short',
               year: 'numeric',

@@ -2,7 +2,8 @@ export interface CategoriaMedicamento {
     id: number;
     nombre: string;
     descripcion: string;
-    status: 'ACTIVE' | 'INACTIVE';
+    estado: boolean;
+    cantidadMedicamentoAsignadoAunaCategoria: number;
 }
 
 export interface PaginatedDatos<T> {
@@ -28,10 +29,13 @@ export interface Medicamento {
     descripcion: string
     image?: string
     dosis: number
-    frecuencia: string
+    frecuenciaHora: number
     fechaInicio: Date
-    fechaFin: Date
-    estado: boolean
+    fechaFinal: Date
+    estaActivo: boolean
+    categoriaId: number
+    nota: string
+    CategoriasName: string
 }
 
 export interface Stat {
@@ -57,14 +61,15 @@ export interface RecentActivity {
 }
 
 export interface MedicamentoRequest {
-   id?: number
-   nombre: string
-   descripcion: string
-   dosis: number
-   frecuenciaHora: number
-   fechaInicio: Date
-   fechaFinal: Date
-   nota: string
+    id: number
+    categoriaId: number
+    nombre: string
+    descripcion: string
+    dosis: number
+    frecuenciaHora: number
+    fechaInicio: Date
+    fechaFinal: Date
+    nota: string
 }
 
 export interface TomaProgramada {
@@ -83,9 +88,9 @@ export interface TomaProgramadaRequest {
 }
 
 export interface CategoriaRequest {
-  id?: number
-  nombre: string
-  descripcion: string
+    id?: number
+    nombre: string
+    descripcion: string
 }
 
 export interface ChartData {
