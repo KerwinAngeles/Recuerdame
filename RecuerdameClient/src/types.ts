@@ -1,3 +1,5 @@
+import type { EstadoToma } from "./data/tomasProgramadas";
+
 export interface CategoriaMedicamento {
     id: number;
     nombre: string;
@@ -77,14 +79,17 @@ export interface TomaProgramada {
     medicamentoId: number
     fechaHoraConfirmacion: Date
     fechaHoraProgramada: Date
-    estado: boolean
+    estadoToma: EstadoToma
+    medicamento: Medicamento
+    medicamentoNombre: string
+    categoriaNombre: string
 }
 
 export interface TomaProgramadaRequest {
     id?: number
     medicamentoId: number
     fechaHora: Date
-    estado: boolean
+    estadoToma: EstadoToma
 }
 
 export interface CategoriaRequest {

@@ -3,15 +3,13 @@ import { ref, onMounted } from 'vue'
 import type { ChartOptions } from 'chart.js'
 import Stat from '../components/Stat.vue'
 import { stats } from '../data/stat.ts'
-import { recentActivities } from '../data/recentActivity.ts'
-import RecentActivity from '../components/RecentActivity.vue'
 import Button from '../components/Button.vue'
 import { Bar } from 'vue-chartjs'
 import { Chart as ChartJS, Title, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Filler, BarElement } from 'chart.js'
 import { chartData } from '@/data/chart.ts'
 import TomaProgramadaSection from '../components/TomaProgramadaSection.vue'
 import { medicamentosConTomas } from '../data/tomasProgramadas.ts'
-
+import { TomaProgramadaService } from '../services/tomaProgramadaService.ts'
 const chartOptions = ref<ChartOptions | null>(null)
   ChartJS.register(
   CategoryScale,
@@ -25,7 +23,20 @@ const chartOptions = ref<ChartOptions | null>(null)
   BarElement
 )
 
+const tomasPendientes = ref(0)
+const tomasRealizadas = ref(0)
+const tomasOmitidas = ref(0)
+
+const cargarTomasProgramadas = async () => {
+    const service = TomaProgramadaService.getInstance()
+    tomasPendientes.value = await service.getCantidadDeTomasPendientes()
+    tomasRealizadas.value = await service.getCantidadDeTomasRealizadas()
+    tomasOmitidas.value = await service.getCantidadDeTomasOmitidas()
+}
+
 onMounted(() => {
+  cargarTomasProgramadas()
+  
   chartOptions.value = {
     maintainAspectRatio: false,
     plugins: {
@@ -91,21 +102,20 @@ onMounted(() => {
     <Stat v-for="stat in stats" :key="stat.title" :stat="stat" />
     </div>
 
+    <!-- ── Tomas Programadas ─────────────────────────────── -->
+    <TomaProgramadaSection 
+      :medicamentos="medicamentosConTomas" 
+      :countTomadas="tomasRealizadas"
+      :countPendientes="tomasPendientes"
+      :countOmitidas="tomasOmitidas"
+    />
+
     <!-- ── Bottom Grid: Chart + Activity ───────────────── -->
-    <div class="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_340px]">
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-1">
 
       <div class="bg-white rounded-[18px] border border-[#e1e8f5] shadow-[0_2px_12px_rgba(13,27,62,0.08)] overflow-hidden flex flex-col">
         <Bar :data="chartData"/>
       </div>
-
-      <!-- Activity Feed -->
-      <div class="bg-white rounded-[18px] border border-[#e1e8f5] shadow-[0_2px_12px_rgba(13,27,62,0.08)] overflow-hidden flex flex-col">
-        <RecentActivity :recentActivity="recentActivities" />
-      </div>
     </div>
-
-    <!-- ── Tomas Programadas ─────────────────────────────── -->
-    <TomaProgramadaSection :medicamentos="medicamentosConTomas" />
-
   </div>
 </template>

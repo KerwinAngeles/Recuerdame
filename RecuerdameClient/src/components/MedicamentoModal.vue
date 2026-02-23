@@ -25,7 +25,7 @@ const formData = ref<Partial<Medicamento>>({
   frecuenciaHora: 0,
   fechaInicio: new Date(),
   fechaFinal: new Date(),
-  estado: true,
+  estaActivo: true,
   categoriaId: 0,
   nota: ''
 })
@@ -50,7 +50,7 @@ watch(() => props.visible, (newVal) => {
         frecuenciaHora: 0,
         fechaInicio: new Date(),
         fechaFinal: new Date(),
-        estado: true,
+        estaActivo: true,
         categoriaId: 0,
         nota: ''
       }
@@ -169,7 +169,7 @@ const save = () => {
       </div>
 
       <div class="flex items-center gap-3 mt-2" v-if="mode === 'edit'">
-        <input type="checkbox" id="estado" v-model="formData.estado" class="w-4 h-4 rounded text-[#3366ee] focus:ring-[#3366ee] border-[#e1e8f5]" />
+        <input type="checkbox" id="estado" v-model="formData.estaActivo" class="w-4 h-4 rounded text-[#3366ee] focus:ring-[#3366ee] border-[#e1e8f5]" />
         <label for="estado" class="text-[14px] font-medium text-[#0d1b3e] cursor-pointer">Tratamiento Activo</label>
       </div>
         <!-- Descripción -->
