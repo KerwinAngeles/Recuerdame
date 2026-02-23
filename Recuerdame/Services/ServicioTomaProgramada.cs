@@ -1,6 +1,8 @@
-using Recuerdame.Common;
+﻿using Recuerdame.Common;
+using Recuerdame.Dtos.Medicamento;
 using Recuerdame.Dtos.TomaProgramada;
 using Recuerdame.Interfaces;
+using Recuerdame.Model;
 
 namespace Recuerdame.Services
 {
@@ -9,7 +11,7 @@ namespace Recuerdame.Services
         private readonly IRepositorioTomaProgramada _repositorioTomaProgramda;
         public ServicioTomaProgramada(IRepositorioTomaProgramada repositorioTomaProgramada)
         {
-            _repositorioTomaProgramda = repositorioTomaProgramada;
+            _repositorioTomaProgramda = repositorioTomaProgramada; 
         }
 
         public async Task<ResultadoPaginado<TomaPogramadaDto>> AllTomasProgramadas(TomaProgramadaFiltro filtros)
@@ -17,13 +19,13 @@ namespace Recuerdame.Services
             var result = await _repositorioTomaProgramda.GetAllFiltrado(filtros);
             var items = result.Items.Select(m => new TomaPogramadaDto
             {
-                Id = m.Id,
                 MedicamentoId = m.MedicamentoId,
                 FechaHoraProgramada = m.FechaHoraProgramada,
                 FechaConfirmacion = m.FechaConfirmacion,
                 EstadoToma = m.EstadoToma,
-                MedicamentoNombre = m.Medicamento?.Nombre ?? string.Empty,
-                CategoriaNombre = m.Medicamento?.CategoriaMedicamento?.Nombre ?? string.Empty,
+                MedicamentoNombre = m.Medicamento.Nombre,
+                CategoriaNombre = m.Medicamento.CategoriaMedicamento.Nombre
+
             }).ToList();
 
             return new ResultadoPaginado<TomaPogramadaDto>

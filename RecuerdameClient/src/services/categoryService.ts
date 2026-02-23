@@ -42,7 +42,6 @@ export class CategoryService extends HttpService {
 
     async deleteCategory(id: number) {
         const response = await this.http.delete<ApiResponse<CategoriaMedicamento>>(`${this.enpoint}/${id}`);
-        console.log(response.data.datos);
         return response.data.datos;
     }
 }

@@ -1,7 +1,5 @@
 import type { Medicamento, ApiResponse, PaginatedDatos } from "../types";
 import { HttpService } from "./httpservice";
-import type { TomaProgramada } from "../types";
-import { EstadoToma } from "../enums/enums";
 export class DashboardService extends HttpService {
     private static instance: DashboardService
     private readonly enpoint = '/Medicamento';

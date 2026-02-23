@@ -1,4 +1,4 @@
-import type { EstadoToma } from "./data/tomasProgramadas";
+import type { EstadoToma } from "./enums/enums";
 
 export interface CategoriaMedicamento {
     id: number;
