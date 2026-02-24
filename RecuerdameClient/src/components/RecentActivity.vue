@@ -7,7 +7,7 @@ defineProps<{ recentActivity: RecentActivity[] }>()
     <div class="flex items-start justify-between px-[1.375rem] pt-[1.375rem] mb-5">
           <div>
             <h3 class="text-[15px] font-bold text-[#0d1b3e] mb-1 m-0 tracking-[-0.02em]">Actividad Reciente</h3>
-            <p class="text-[12px] text-[#8a97b4] m-0">Últimas acciones del sistema</p>
+            <p class="text-[12px] text-[#8a97b4] m-0">Últimas tomas realizadas</p>
           </div>
           <button class="border-none bg-transparent text-[12px] font-semibold text-[#3366ee] cursor-pointer p-0 transition-colors duration-[150ms] whitespace-nowrap mt-0.5 hover:text-[#1a3fb5]">
             Ver todo

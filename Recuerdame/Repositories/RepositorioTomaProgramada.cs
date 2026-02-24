@@ -1,6 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Recuerdame.Common;
-using Recuerdame.Dtos.Medicamento;
 using Recuerdame.Dtos.TomaProgramada;
 using Recuerdame.Interfaces;
 using Recuerdame.Model;
@@ -11,7 +10,7 @@ namespace Recuerdame.Repositories
     public class RepositorioTomaProgramada : RepositorioGenerico<TomaProgramada>, IRepositorioTomaProgramada
     {
         private readonly ApplicationDbContext _context;
-        public RepositorioTomaProgramada(ApplicationDbContext context) : base(context) 
+        public RepositorioTomaProgramada(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }
@@ -20,6 +19,7 @@ namespace Recuerdame.Repositories
         {
             var query = _context.TomaProgramada
                 .Include(m => m.Medicamento)
+                    .ThenInclude(med => med.CategoriaMedicamento)
                 .AsQueryable();
 
             if (filtros.FechaConfirmacion.HasValue)
@@ -31,11 +31,21 @@ namespace Recuerdame.Repositories
             if (filtros.MedicamentoId.HasValue)
                 query = query.Where(m => m.MedicamentoId == filtros.MedicamentoId.Value);
 
-            query = filtros.OrdenarPor.ToLower() switch
+            if (filtros.EstadoToma.HasValue)
+                query = query.Where(m => m.EstadoToma == filtros.EstadoToma.Value);
+
+            if (filtros.FechaDesde.HasValue)
+                query = query.Where(m => m.FechaHoraProgramada >= filtros.FechaDesde.Value);
+
+            if (filtros.FechaHasta.HasValue)
+                query = query.Where(m => m.FechaHoraProgramada <= filtros.FechaHasta.Value);
+
+            query = filtros.OrdenarPor?.ToLower() switch
             {
-                "fechaHoraProgramada" => filtros.OrdenAscendente
+                "fechahoraprogramada" => filtros.OrdenAscendente
                     ? query.OrderBy(m => m.FechaHoraProgramada)
-                    : query.OrderByDescending(m => m.FechaConfirmacion),
+                    : query.OrderByDescending(m => m.FechaHoraProgramada),
+                _ => query.OrderByDescending(m => m.FechaHoraProgramada),
             };
 
             var total = await query.CountAsync();
@@ -52,7 +62,5 @@ namespace Recuerdame.Repositories
                 TamanoPagina = filtros.TamanoPagina
             };
         }
-
-
     }
 }

@@ -29,6 +29,12 @@ const items = ref([
     to: '/categorias',
     command: () => router.push('/categorias'),
   },
+  {
+    label: 'Historial',
+    icon: 'pi pi-history',
+    to: '/historial',
+    command: () => router.push('/historial'),
+  },
 ])
 
 const pageTitle = () => {

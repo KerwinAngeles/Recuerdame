@@ -2,7 +2,12 @@
 import { computed } from 'vue'
 import type { MedicamentoConTomas, EstadoToma } from '@/data/tomasProgramadas'
 
-const props = defineProps<{ medicamentos: MedicamentoConTomas[] }>()
+const props = defineProps<{ 
+  medicamentos: MedicamentoConTomas[]
+  countTomadas: number
+  countPendientes: number
+  countOmitidas: number
+}>()
 
 // Hora actual en formato HH:MM para comparar con las tomas
 const now = new Date()
@@ -10,20 +15,10 @@ const horaActual = `${String(now.getHours()).padStart(2, '0')}:${String(now.getM
 const fechaHoy = now.toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' })
 
 // Totales globales
-const totalTomas = computed(() =>
-  props.medicamentos.reduce((s, m) => s + m.tomas.length, 0)
-)
-const countTomadas = computed(() =>
-  props.medicamentos.reduce((s, m) => s + m.tomas.filter(t => t.estado === 'tomado').length, 0)
-)
-const countPendientes = computed(() =>
-  props.medicamentos.reduce((s, m) => s + m.tomas.filter(t => t.estado === 'pendiente').length, 0)
-)
-const countOmitidas = computed(() =>
-  props.medicamentos.reduce((s, m) => s + m.tomas.filter(t => t.estado === 'omitido').length, 0)
-)
+const totalTomas = computed(() => props.countTomadas + props.countPendientes + props.countOmitidas)
+
 const porcentajeGlobal = computed(() =>
-  totalTomas.value ? Math.round((countTomadas.value / totalTomas.value) * 100) : 0
+  totalTomas.value ? Math.round((props.countTomadas / totalTomas.value) * 100) : 0
 )
 
 // Próxima toma pendiente más cercana a la hora actual

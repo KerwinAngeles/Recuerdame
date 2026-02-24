@@ -1,4 +1,5 @@
-﻿using Recuerdame.Enums;
+﻿using Recuerdame.Dtos.Medicamento;
+using Recuerdame.Enums;
 
 namespace Recuerdame.Dtos.TomaProgramada
 {
@@ -9,5 +10,7 @@ namespace Recuerdame.Dtos.TomaProgramada
         public DateTime FechaHoraProgramada { get; set; }
         public DateTime FechaConfirmacion { get; set; }
         public EstadoToma EstadoToma { get; set; }
+        public string MedicamentoNombre { get; set; }
+        public string CategoriaNombre { get; set; }
     }
 }
