@@ -1,6 +1,17 @@
 <script setup lang="ts">
 import { type Stat } from "../types";
 defineProps<{ stat: Stat }>()
+import {DashboardService} from "../services/dashboardService";
+import { onMounted, ref } from "vue";
+
+const dashboardService = DashboardService.getInstance();
+const cantidadDeMedicamentos = ref(0);
+const cantidadDeTomasProgramadas = ref(0);
+
+onMounted(async () => {
+  cantidadDeMedicamentos.value = await dashboardService.getCantidadDeMedicamentos();
+  cantidadDeTomasProgramadas.value = await dashboardService.getCantidadDeTomasProgramadas();
+})
 </script>
 
 <template>
@@ -32,7 +43,7 @@ defineProps<{ stat: Stat }>()
 
         <!-- Body -->
         <div class="relative">
-          <p class="text-[2.5rem] font-extrabold text-[#0d1b3e] mb-0.5 m-0 tracking-[-0.045em] leading-none">{{ stat.value }}</p>
+          <p class="text-[2.5rem] font-extrabold text-[#0d1b3e] mb-0.5 m-0 tracking-[-0.045em] leading-none">{{ cantidadDeMedicamentos }}</p>
           <p class="text-[13px] font-semibold text-[#4a5878] mb-1 m-0">{{ stat.title }}</p>
           <p class="text-[11px] text-[#8a97b4] m-0">{{ stat.desc }}</p>
         </div>

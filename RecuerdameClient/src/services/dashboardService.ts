@@ -14,15 +14,15 @@ export class DashboardService extends HttpService {
             DashboardService.instance = new DashboardService()
         }
         return DashboardService.instance
-    } 
+    }
 
     async getCantidadDeMedicamentos(): Promise<number> {
-            const response = await this.http.get<ApiResponse<PaginatedDatos<Medicamento>>>(this.enpoint);
-            return response.data.datos.items.filter(m => m.estado).length; 
+        const response = await this.http.get<ApiResponse<PaginatedDatos<Medicamento>>>(this.enpoint);
+        return response.data.datos.items.filter(m => m.estaActivo).length;
     }
 
     async getCantidadDeTomasProgramadas(): Promise<number> {
-            const response = await this.http.get<ApiResponse<PaginatedDatos<TomaProgramada>>>(this.enpointTomaProgramada);
-            return response.data.datos.items.filter(t => t.estado).length; 
+        const response = await this.http.get<ApiResponse<PaginatedDatos<TomaProgramada>>>(this.enpointTomaProgramada);
+        return response.data.datos.items.filter(t => t.estado).length;
     }
 }
