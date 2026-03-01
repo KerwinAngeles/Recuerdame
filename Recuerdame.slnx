@@ -2,9 +2,6 @@
   <Folder Name="/nginx/">
     <File Path="nginx.conf" />
   </Folder>
-  <Folder Name="/nginx/conf.d/">
-    <File Path="api.conf" />
-  </Folder>
   <Project Path="docker-compose.dcproj">
     <Build />
   </Project>

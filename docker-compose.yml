@@ -1,19 +1,26 @@
+name: recuerdame-compose
+
 services:
   recuerdame:
     image: recuerdame
-    container_name: RecuerdameContenedor
+    container_name: recuerdame-container
+    networks:
+      - app-network
     build:
       context: .
       dockerfile: Recuerdame/Dockerfile
+    ports:
+       - "8080:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=RecuerdameDb;User Id=sa;Password=PasswordDev123!;TrustServerCertificate=True;
     depends_on:
       - sqlserver
     restart: always
 
   sqlserver:
-    container_name: RecuerdameSqlServer
+    container_name: sqlserver
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       - ACCEPT_EULA=Y
@@ -22,22 +29,27 @@ services:
       - "1433:1433"
     volumes:
       - sql_data:/var/opt/mssql
-
-  nginx:
-    image: nginx:1.25-alpine
-    container_name: nginx
-    ports:
-      - "80:80"          # Solo Nginx expone puertos al host
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
     networks:
       - app-network
+   
+  frontend:
+    build:
+      context: ./RecuerdameClient
+      dockerfile: Dockerfile
+    container_name: frontend
+    volumes:
+       - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "80:80"
     depends_on:
-      dotnet-api:
-        condition: service_healthy
-    restart: unless-stopped
+      - recuerdame
+    networks:
+      - app-network
 
 volumes:
   sql_data:
+
+networks:
+  app-network:
+    driver: bridge
 

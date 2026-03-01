@@ -17,6 +17,7 @@ export class CategoryService extends HttpService {
 
     async getCategories(): Promise<CategoriaMedicamento[]> {
         const response = await this.http.get<ApiResponse<PaginatedDatos<CategoriaMedicamento>>>(this.enpoint);
+        console.log('Enpoint: ' + this.enpoint);
         return response.data.datos.items;
     }
 
