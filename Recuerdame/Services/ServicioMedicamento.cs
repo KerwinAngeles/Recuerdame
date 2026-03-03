@@ -1,5 +1,6 @@
 using Recuerdame.Common;
 using Recuerdame.Dtos.Medicamento;
+using Recuerdame.Enums;
 using Recuerdame.Excepciones;
 using Recuerdame.Interfaces;
 using Recuerdame.Model;
@@ -51,9 +52,6 @@ namespace Recuerdame.Services
 
         public async Task<MedicamentoResponse> AddMedicamento(MedicamentoRequest request)
         {
-            if (request.FechaFinal <= request.FechaInicio)
-                throw new BusinessException("La fecha final debe ser posterior a la fecha de inicio.");
-
             if (request.FrecuenciaHora <= 0)
                 throw new BusinessException("La frecuencia en horas debe ser mayor a cero.");
 
@@ -72,17 +70,23 @@ namespace Recuerdame.Services
 
             await _repositorioMedicamento.AddAsync(medicamento);
 
+
             var fechaActual = medicamento.FechaInicio;
-            while (fechaActual <= medicamento.FechaFinal)
+            for (int i = 0; i < medicamento.Dosis; i++)
             {
                 await _repositorioTomaProgramada.AddAsync(new TomaProgramada
                 {
                     MedicamentoId = medicamento.Id,
                     FechaHoraProgramada = fechaActual,
-                    EstadoToma = Enums.EstadoToma.Pendiente
+                    EstadoToma = EstadoToma.Pendiente
                 });
+
                 fechaActual = fechaActual.AddHours(medicamento.FrecuenciaHora);
             }
+
+            medicamento.FechaFinal = fechaActual.AddHours(-medicamento.FrecuenciaHora);
+
+            await _repositorioMedicamento.UpdateAsync(medicamento, medicamento.Id);
 
             return new MedicamentoResponse
             {
@@ -104,6 +108,7 @@ namespace Recuerdame.Services
             medicamento.FechaInicio = request.FechaInicio;
             medicamento.FechaFinal = request.FechaFinal;
             medicamento.Nota = request.Nota;
+
 
             await _repositorioMedicamento.UpdateAsync(medicamento, id);
 

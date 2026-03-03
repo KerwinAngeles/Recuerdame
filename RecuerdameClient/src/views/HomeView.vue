@@ -3,42 +3,85 @@ import { ref, onMounted } from 'vue'
 import Stat from '../components/Stat.vue'
 import Button from '../components/Button.vue'
 import TomaProgramadaSection from '../components/TomaProgramadaSection.vue'
-import { medicamentosConTomas } from '../data/tomasProgramadas.ts'
+import type { MedicamentoConTomas } from '../data/tomasProgramadas.ts'
 import { TomaProgramadaService } from '../services/tomaProgramadaService.ts'
-import {MedicamentoService} from '../services/medicamentoService.ts'
+import { MedicamentoService } from '../services/medicamentoService.ts'
+import { EstadoToma } from '../enums/enums.ts'
 
 const tomasPendientes = ref(0)
 const tomasRealizadas = ref(0)
 const tomasOmitidas = ref(0)
 const cantidadDeMedicamentos = ref(0)
 const dosisDeHoy = ref(0)
-const proximaToma = ref<string>("6:00")
+const proximaToma = ref<string>("--:--")
+const medicamentosConTomasApi = ref<MedicamentoConTomas[]>([])
+
+const COLORES = [
+  { colorAccent: '#3366ee', colorBg: '#eef4ff', colorText: '#3366ee', icon: 'pi-heart-fill' },
+  { colorAccent: '#10b981', colorBg: '#ecfdf5', colorText: '#059669', icon: 'pi-bolt' },
+  { colorAccent: '#8b5cf6', colorBg: '#f5f3ff', colorText: '#7c3aed', icon: 'pi-heart' },
+  { colorAccent: '#f59e0b', colorBg: '#fffbeb', colorText: '#d97706', icon: 'pi-star-fill' },
+  { colorAccent: '#ef4444', colorBg: '#fff1f2', colorText: '#dc2626', icon: 'pi-exclamation-circle' },
+]
+
+function mapEstado(estadoApi: string): 'tomado' | 'pendiente' | 'omitido' {
+  if (estadoApi === EstadoToma.Realizada) return 'tomado'
+  if (estadoApi === EstadoToma.Omitida) return 'omitido'
+  return 'pendiente'
+}
 
 const cargarTomasProgramadas = async () => {
-    const service = TomaProgramadaService.getInstance()
-    const medicamentoService = MedicamentoService.getInstance()
-    const [
-      Pendientes,
-      Realizadas,
-      Omitidas,
-      DosisDeHoy,
-      ProximaToma,
-      CantidadDeMedicamentos
-    ] = await Promise.all([
-      service.getCantidadDeTomasPendientes(),
-      service.getCantidadDeTomasRealizadas(),
-      service.getCantidadDeTomasOmitidas(),
-      service.getDosisDeHoy(),
-      service.getProximaToma(),
-      medicamentoService.getMedicamentos().then(m => m.length)
-    ])
+  const service = TomaProgramadaService.getInstance()
+  const medicamentoService = MedicamentoService.getInstance()
+  const ahora = new Date()
 
-    tomasPendientes.value = Pendientes
-    tomasRealizadas.value = Realizadas
-    tomasOmitidas.value = Omitidas
-    dosisDeHoy.value = DosisDeHoy
-    proximaToma.value = ProximaToma
-    cantidadDeMedicamentos.value = CantidadDeMedicamentos
+  const [tomasResponse, medicamentos] = await Promise.all([
+    service.getTomas(),
+    medicamentoService.getMedicamentos(),
+  ])
+
+  const tomas = tomasResponse.items
+
+  cantidadDeMedicamentos.value = medicamentos.length
+  tomasRealizadas.value = tomas.filter(t => t.estadoToma.toString() === EstadoToma.Realizada).length
+  tomasPendientes.value = tomas.filter(t => t.estadoToma.toString() === EstadoToma.Pendiente).length
+  tomasOmitidas.value = tomas.filter(t => t.estadoToma.toString() === EstadoToma.Omitida).length
+  dosisDeHoy.value = tomas.filter(t => new Date(t.fechaHoraProgramada).toDateString() === ahora.toDateString()).length
+
+  const siguiente = tomas
+    .map(t => new Date(t.fechaHoraProgramada))
+    .filter(f => f.toDateString() === ahora.toDateString() && f > ahora)
+    .sort((a, b) => a.getTime() - b.getTime())[0]
+  proximaToma.value = siguiente
+    ? siguiente.toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' })
+    : '--:--'
+
+  // Agrupar tomas por medicamento para TomaProgramadaSection
+  const mapa = new Map<number, MedicamentoConTomas>()
+  tomas.forEach(toma => {
+    if (!mapa.has(toma.medicamentoId)) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const color = COLORES[mapa.size % COLORES.length]!
+      mapa.set(toma.medicamentoId, {
+        id: toma.medicamentoId,
+        nombre: toma.medicamentoNombre,
+        dosis: toma.medicamento?.dosis ?? 0,
+        unidad: 'mg',
+        categoria: toma.categoriaNombre,
+        colorAccent: color.colorAccent,
+        colorBg: color.colorBg,
+        colorText: color.colorText,
+        icon: color.icon,
+        tomas: [],
+      })
+    }
+    mapa.get(toma.medicamentoId)!.tomas.push({
+      id: toma.id,
+      hora: new Date(toma.fechaHoraProgramada).toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' }),
+      estado: mapEstado(toma.estadoToma.toString()),
+    })
+  })
+  medicamentosConTomasApi.value = Array.from(mapa.values())
 }
 
 onMounted(() => {
@@ -77,7 +120,7 @@ onMounted(() => {
 
     <!-- ── Tomas Programadas ─────────────────────────────── -->
     <TomaProgramadaSection 
-      :medicamentos="medicamentosConTomas" 
+      :medicamentos="medicamentosConTomasApi"
       :countTomadas="tomasRealizadas"
       :countPendientes="tomasPendientes"
       :countOmitidas="tomasOmitidas"

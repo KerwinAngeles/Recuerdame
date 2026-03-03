@@ -48,7 +48,7 @@ export class TomaProgramadaService extends HttpService {
 
     async getDosisDeHoy(): Promise<number> {
         const response = await this.http.get<ApiResponse<PaginatedDatos<TomaProgramada>>>(this.enpoint);
-        return response.data.datos.items.filter(t => t.fechaHoraProgramada.toDateString() === new Date().toDateString()).length;
+        return response.data.datos.items.filter(t => new Date(t.fechaHoraProgramada).toDateString() === new Date().toDateString()).length;
     }
 
     async getProximaToma(): Promise<string> {

@@ -6,6 +6,7 @@ import Button from 'primevue/button'
 import Select from 'primevue/select'
 import type { Medicamento, CategoriaMedicamento } from '@/types'
 import { CategoryService } from '@/services/categoryService'
+import getLocalDateTime from '@/helper/getlocaltime'
 
 const props = defineProps<{
   visible: boolean
@@ -23,8 +24,7 @@ const formData = ref<Partial<Medicamento>>({
   descripcion: '',
   dosis: 0,
   frecuenciaHora: 0,
-  fechaInicio: new Date(),
-  fechaFinal: new Date(),
+  fechaInicio: getLocalDateTime(),
   estaActivo: true,
   categoriaId: 0,
   nota: ''
@@ -48,8 +48,7 @@ watch(() => props.visible, (newVal) => {
         descripcion: '',
         dosis: 0,
         frecuenciaHora: 0,
-        fechaInicio: new Date(),
-        fechaFinal: new Date(),
+        fechaInicio: getLocalDateTime(),
         estaActivo: true,
         categoriaId: 0,
         nota: ''
@@ -86,16 +85,11 @@ const save = () => {
     isValid = false
   }
 
-  if (!formData.value.fechaFinal) {
-    errors.value.fechaFinal = 'La fecha de fin es obligatoria.'
-    isValid = false
-  } else if (formData.value.fechaInicio && new Date(formData.value.fechaFinal) < new Date(formData.value.fechaInicio)) {
-    errors.value.fechaFinal = 'La fecha de fin no puede ser anterior a la de inicio.'
-    isValid = false
-  }
-
   if (isValid) {
     emit('save', formData.value)
+    if(formData.value.fechaInicio){
+      formData.value.fechaInicio = new Date(formData.value.fechaInicio).toISOString()
+    }
     close()
   }
 }
@@ -152,19 +146,12 @@ const save = () => {
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 gap-4">
         <!-- Fecha Inicio -->
         <div class="flex flex-col gap-2">
             <label class="text-[13px] font-semibold text-[#4a5878]">Fecha Inicio <span class="text-rose-500">*</span></label>
-            <input type="date" :value="formData.fechaInicio ? new Date(formData.fechaInicio).toISOString().split('T')[0] : ''" @input="formData.fechaInicio = new Date(($event.target as HTMLInputElement).value)" class="w-full text-sm border focus:border-[#3366ee] rounded-xl px-3 py-2.5 focus:outline-none transition-colors shadow-sm" :class="errors.fechaInicio ? 'border-rose-500 focus:border-rose-500' : 'border-[#e1e8f5]'" />
+            <input type="datetime-local" :value="formData.fechaInicio" class="w-full text-sm border focus:border-[#3366ee] rounded-xl px-3 py-2.5 focus:outline-none transition-colors shadow-sm" :class="errors.fechaInicio ? 'border-rose-500 focus:border-rose-500' : 'border-[#e1e8f5]'" />
             <span v-if="errors.fechaInicio" class="text-rose-500 text-[11px] font-medium">{{ errors.fechaInicio }}</span>
-        </div>
-
-        <!-- Fecha Fin -->
-        <div class="flex flex-col gap-2">
-            <label class="text-[13px] font-semibold text-[#4a5878]">Fecha Fin <span class="text-rose-500">*</span></label>
-            <input type="date" :value="formData.fechaFinal ? new Date(formData.fechaFinal).toISOString().split('T')[0] : ''" @input="formData.fechaFinal = new Date(($event.target as HTMLInputElement).value)" class="w-full text-sm border focus:border-[#3366ee] rounded-xl px-3 py-2.5 outline-none focus:outline-none transition-colors shadow-sm" :class="errors.fechaFinal ? 'border-rose-500 focus:border-rose-500' : 'border-[#e1e8f5]'" />
-            <span v-if="errors.fechaFinal" class="text-rose-500 text-[11px] font-medium">{{ errors.fechaFinal }}</span>
         </div>
       </div>
 

@@ -32,7 +32,7 @@ export interface Medicamento {
     image?: string
     dosis: number
     frecuenciaHora: number
-    fechaInicio: Date
+    fechaInicio: string
     fechaFinal: Date
     estaActivo: boolean
     categoriaId: number
@@ -69,7 +69,7 @@ export interface MedicamentoRequest {
     descripcion: string
     dosis: number
     frecuenciaHora: number
-    fechaInicio: Date
+    fechaInicio: string
     fechaFinal: Date
     nota: string
 }
