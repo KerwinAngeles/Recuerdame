@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { MedicamentoConTomas, EstadoToma } from '@/data/tomasProgramadas'
+import type { MedicamentoConTomas} from '@/data/tomasProgramadas'
+import { EstadoToma } from '@/enums/enums'
 
 const props = defineProps<{ 
   medicamentos: MedicamentoConTomas[]
@@ -27,7 +28,7 @@ const proximaTomaId = computed(() => {
   let nextHora = '99:99'
   for (const med of props.medicamentos) {
     for (const toma of med.tomas) {
-      if (toma.estado === 'pendiente' && toma.hora >= horaActual && toma.hora < nextHora) {
+      if (toma.estado === EstadoToma.Pendiente && toma.hora >= horaActual && toma.hora < nextHora) {
         nextHora = toma.hora
         nextId = toma.id
       }
@@ -46,7 +47,7 @@ const proximaTomaBanner = computed(() => {
 
 // Estadísticas por medicamento
 function getTomadas(med: MedicamentoConTomas) {
-  return med.tomas.filter(t => t.estado === 'tomado').length
+  return med.tomas.filter(t => t.estado === EstadoToma.Tomada).length
 }
 function getPorcentaje(med: MedicamentoConTomas) {
   return Math.round((getTomadas(med) / med.tomas.length) * 100)
@@ -61,9 +62,9 @@ function isProxima(tomaId: number) {
 }
 
 const estadoConfig: Record<EstadoToma, { bg: string; text: string; border: string; icon: string; label: string }> = {
-  tomado:    { bg: '#ecfdf5', text: '#059669', border: '#a7f3d0', icon: 'pi-check',  label: 'Tomado'    },
-  pendiente: { bg: '#eef4ff', text: '#3366ee', border: '#bcd3ff', icon: 'pi-clock',  label: 'Pendiente' },
-  omitido:   { bg: '#fff1f2', text: '#e11d48', border: '#fecdd3', icon: 'pi-times',  label: 'Omitido'   },
+  [EstadoToma.Tomada]:    { bg: '#ecfdf5', text: '#059669', border: '#a7f3d0', icon: 'pi-check',  label: 'Tomado'    },
+  [EstadoToma.Pendiente]: { bg: '#eef4ff', text: '#3366ee', border: '#bcd3ff', icon: 'pi-clock',  label: 'Pendiente' },
+  [EstadoToma.Cancelada]:   { bg: '#fff1f2', text: '#e11d48', border: '#fecdd3', icon: 'pi-times',  label: 'Cancelado'   },
 }
 </script>
 

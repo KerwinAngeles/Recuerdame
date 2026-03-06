@@ -4,7 +4,6 @@
     {
         Pendiente = 1,
         Tomada = 2,
-        Omitido = 3,
-        Pospuesto = 4,
+        Cancelada = 3
     }
 }

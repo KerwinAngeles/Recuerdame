@@ -1,15 +1,15 @@
 using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using Recuerdame.ExtensionMethods;
 using Recuerdame.Filters;
 using Recuerdame.Interfaces;
 using Recuerdame.Persistence;
 using Recuerdame.Repositories;
 using Recuerdame.Services;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.WebHost.UseUrls("http://*:8080");
 
 // ── Controladores con filtro global de excepciones ──────────────────────────
 builder.Services.AddControllers(options =>
@@ -34,14 +34,8 @@ builder.Services.AddScoped<ServicioMedicamento>();
 builder.Services.AddScoped<ServicioCategoriaMedicamento>();
 builder.Services.AddScoped<ServicioTomaProgramada>();
 
-// ── CORS ─────────────────────────────────────────────────────────────────────
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("Frontend", policy =>
-        policy.WithOrigins("http://localhost:3000")
-              .AllowAnyHeader()
-              .AllowAnyMethod());
-});
+// ── logs ────────────────────────────────────────────────────────────────
+builder.AddSerilogLogging();
 
 // ── OpenAPI ──────────────────────────────────────────────────────────────────
 builder.Services.AddOpenApi();
@@ -83,9 +77,8 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+app.UseSerilogRequestLogging();
 app.UseRouting();
-app.UseCors("Frontend");
 app.UseAuthorization();
 app.MapControllers();
-
 app.Run();

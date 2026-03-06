@@ -21,8 +21,8 @@ const totalPaginas = ref(0)
 const estadoOpciones = [
   { label: 'Todos', value: null },
   { label: 'Pendiente', value: EstadoToma.Pendiente },
-  { label: 'Realizada', value: EstadoToma.Realizada },
-  { label: 'Omitida', value: EstadoToma.Omitida },
+  { label: 'Tomada', value: EstadoToma.Tomada },
+  { label: 'Cancelada', value: EstadoToma.Cancelada },
 ]
 
 const cargarTomas = async () => {
@@ -72,10 +72,10 @@ const paginasVisibles = computed(() => {
 
 const estadoBadge = (estado: EstadoToma) => {
   switch (estado?.toString()) {
-    case EstadoToma.Realizada:
-      return { label: 'Realizada', bg: '#dcfce7', color: '#15803d', dot: '#22c55e' }
-    case EstadoToma.Omitida:
-      return { label: 'Omitida', bg: '#fee2e2', color: '#b91c1c', dot: '#ef4444' }
+    case EstadoToma.Tomada:
+      return { label: 'Tomada', bg: '#dcfce7', color: '#15803d', dot: '#22c55e' }
+    case EstadoToma.Cancelada:
+      return { label: 'Cancelada', bg: '#fee2e2', color: '#b91c1c', dot: '#ef4444' }
     default:
       return { label: 'Pendiente', bg: '#fef9c3', color: '#a16207', dot: '#eab308' }
   }
@@ -138,18 +138,18 @@ onMounted(cargarTomas)
         <div class="w-2 h-2 rounded-full bg-[#22c55e]"></div>
         <div class="flex items-baseline gap-1.5">
           <span class="text-[20px] font-extrabold text-[#059669] tracking-tight leading-none">
-            {{ contadorEstado(EstadoToma.Realizada) }}
+            {{ contadorEstado(EstadoToma.Tomada) }}
           </span>
-          <span class="text-[11px] font-semibold text-[#8a97b4] uppercase tracking-wide">Realizadas</span>
+          <span class="text-[11px] font-semibold text-[#8a97b4] uppercase tracking-wide">Tomadas</span>
         </div>
       </div>
       <div class="inline-flex items-center gap-3 bg-white border border-[#e1e8f5] rounded-[14px] px-5 py-3.5 shadow-sm">
         <div class="w-2 h-2 rounded-full bg-[#ef4444]"></div>
         <div class="flex items-baseline gap-1.5">
           <span class="text-[20px] font-extrabold text-[#b91c1c] tracking-tight leading-none">
-            {{ contadorEstado(EstadoToma.Omitida) }}
+            {{ contadorEstado(EstadoToma.Cancelada) }}
           </span>
-          <span class="text-[11px] font-semibold text-[#8a97b4] uppercase tracking-wide">Omitidas</span>
+          <span class="text-[11px] font-semibold text-[#8a97b4] uppercase tracking-wide">Canceladas</span>
         </div>
       </div>
     </div>

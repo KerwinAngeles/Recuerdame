@@ -33,7 +33,7 @@ export class TomaProgramadaService extends HttpService {
 
     async getCantidadDeTomasRealizadas(): Promise<number> {
         const response = await this.http.get<ApiResponse<PaginatedDatos<TomaProgramada>>>(this.enpoint);
-        return response.data.datos.items.filter(t => t.estadoToma.toString() === EstadoToma.Realizada).length;
+        return response.data.datos.items.filter(t => t.estadoToma.toString() === EstadoToma.Tomada).length;
     }
 
     async getCantidadDeTomasPendientes(): Promise<number> {
@@ -43,7 +43,7 @@ export class TomaProgramadaService extends HttpService {
 
     async getCantidadDeTomasOmitidas(): Promise<number> {
         const response = await this.http.get<ApiResponse<PaginatedDatos<TomaProgramada>>>(this.enpoint);
-        return response.data.datos.items.filter(t => t.estadoToma.toString() === EstadoToma.Omitida).length;
+        return response.data.datos.items.filter(t => t.estadoToma.toString() === EstadoToma.Cancelada).length;
     }
 
     async getDosisDeHoy(): Promise<number> {

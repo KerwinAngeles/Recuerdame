@@ -24,11 +24,6 @@ const COLORES = [
   { colorAccent: '#ef4444', colorBg: '#fff1f2', colorText: '#dc2626', icon: 'pi-exclamation-circle' },
 ]
 
-function mapEstado(estadoApi: string): 'tomado' | 'pendiente' | 'omitido' {
-  if (estadoApi === EstadoToma.Realizada) return 'tomado'
-  if (estadoApi === EstadoToma.Omitida) return 'omitido'
-  return 'pendiente'
-}
 
 const cargarTomasProgramadas = async () => {
   const service = TomaProgramadaService.getInstance()
@@ -43,9 +38,9 @@ const cargarTomasProgramadas = async () => {
   const tomas = tomasResponse.items
 
   cantidadDeMedicamentos.value = medicamentos.length
-  tomasRealizadas.value = tomas.filter(t => t.estadoToma.toString() === EstadoToma.Realizada).length
+  tomasRealizadas.value = tomas.filter(t => t.estadoToma.toString() === EstadoToma.Tomada).length
   tomasPendientes.value = tomas.filter(t => t.estadoToma.toString() === EstadoToma.Pendiente).length
-  tomasOmitidas.value = tomas.filter(t => t.estadoToma.toString() === EstadoToma.Omitida).length
+  tomasOmitidas.value = tomas.filter(t => t.estadoToma.toString() === EstadoToma.Cancelada).length
   dosisDeHoy.value = tomas.filter(t => new Date(t.fechaHoraProgramada).toDateString() === ahora.toDateString()).length
 
   const siguiente = tomas
@@ -78,7 +73,7 @@ const cargarTomasProgramadas = async () => {
     mapa.get(toma.medicamentoId)!.tomas.push({
       id: toma.id,
       hora: new Date(toma.fechaHoraProgramada).toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' }),
-      estado: mapEstado(toma.estadoToma.toString()),
+      estado: toma.estadoToma,
     })
   })
   medicamentosConTomasApi.value = Array.from(mapa.values())

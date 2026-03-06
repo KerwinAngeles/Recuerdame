@@ -1,5 +1,5 @@
 export enum EstadoToma {
     Pendiente = 'Pendiente',
-    Realizada = 'Realizada',
-    Omitida = 'Omitida'
+    Tomada = 'Tomada',
+    Cancelada = 'Cancelada'
 }
