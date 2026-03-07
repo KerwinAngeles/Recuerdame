@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import type { MedicamentoConTomas} from '@/data/tomasProgramadas'
 import { EstadoToma } from '@/enums/enums'
+import { TomaProgramadaService } from '@/services/tomaProgramadaService'
+import type { TomaProgramada } from '@/types';
 
 const props = defineProps<{ 
   medicamentos: MedicamentoConTomas[]
@@ -9,6 +11,35 @@ const props = defineProps<{
   countPendientes: number
   countOmitidas: number
 }>()
+
+const medicamentosConTomasApi = ref<TomaProgramada[]>([]);
+
+const cargarTomasProgramadas = async () => {
+  const service = TomaProgramadaService.getInstance();
+  const tomas = await service.getTomas();
+  const mapa = new Map<number, TomaProgramada>();
+  tomas.items.forEach(toma => {
+    if (!mapa.has(toma.medicamentoId)) {
+      mapa.set(toma.medicamentoId, {
+        id: toma.medicamentoId,
+        medicamentoId: toma.medicamentoId,
+        medicamentoNombre: toma.medicamentoNombre,
+        fechaHoraProgramada: toma.fechaHoraProgramada,
+        fechaHoraConfirmacion: toma.fechaHoraConfirmacion,
+        estadoToma: toma.estadoToma,
+        categoriaNombre: toma.categoriaNombre,
+        dosis: toma.dosis,
+        frecuenciaHora: toma.frecuenciaHora
+      })
+    }
+  })
+
+  medicamentosConTomasApi.value = Array.from(mapa.values())
+}
+
+onMounted(() => {
+  cargarTomasProgramadas()
+})
 
 // Hora actual en formato HH:MM para comparar con las tomas
 const now = new Date()
@@ -45,21 +76,6 @@ const proximaTomaBanner = computed(() => {
   return null
 })
 
-// Estadísticas por medicamento
-function getTomadas(med: MedicamentoConTomas) {
-  return med.tomas.filter(t => t.estado === EstadoToma.Tomada).length
-}
-function getPorcentaje(med: MedicamentoConTomas) {
-  return Math.round((getTomadas(med) / med.tomas.length) * 100)
-}
-// Circunferencia para SVG (r=15.9155 → circunferencia ≈ 100)
-function getDashArray(med: MedicamentoConTomas) {
-  return `${getPorcentaje(med)} 100`
-}
-
-function isProxima(tomaId: number) {
-  return tomaId === proximaTomaId.value
-}
 
 const estadoConfig: Record<EstadoToma, { bg: string; text: string; border: string; icon: string; label: string }> = {
   [EstadoToma.Tomada]:    { bg: '#ecfdf5', text: '#059669', border: '#a7f3d0', icon: 'pi-check',  label: 'Tomado'    },
@@ -89,44 +105,6 @@ const estadoConfig: Record<EstadoToma, { bg: string; text: string; border: strin
         Ver agenda completa →
       </button>
     </div>
-
-    <!-- ── Barra de progreso global ───────────────────────── -->
-    <div class="bg-white rounded-[16px] border border-[#e1e8f5] shadow-[0_2px_12px_rgba(13,27,62,0.08)] px-5 py-4">
-      <div class="flex items-center justify-between mb-3">
-        <div class="flex flex-wrap gap-x-4 gap-y-1">
-          <span class="flex items-center gap-1.5 text-[12px] font-semibold text-[#059669]">
-            <span class="w-2 h-2 rounded-full bg-[#10b981]"></span>
-            {{ countTomadas }} Tomadas
-          </span>
-          <span class="flex items-center gap-1.5 text-[12px] font-semibold text-[#3366ee]">
-            <span class="w-2 h-2 rounded-full bg-[#3366ee]"></span>
-            {{ countPendientes }} Pendientes
-          </span>
-          <span v-if="countOmitidas > 0" class="flex items-center gap-1.5 text-[12px] font-semibold text-[#e11d48]">
-            <span class="w-2 h-2 rounded-full bg-[#f43f5e]"></span>
-            {{ countOmitidas }} Omitidas
-          </span>
-        </div>
-        <span class="text-[14px] font-extrabold text-[#0d1b3e] tracking-[-0.02em]">{{ porcentajeGlobal }}%</span>
-      </div>
-
-      <!-- Track multicolor -->
-      <div class="relative h-3 bg-[#f0f4fb] rounded-full overflow-hidden">
-        <div
-          class="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-[#3366ee] to-[#10b981] transition-all duration-700"
-          :style="{ width: `${(countTomadas / totalTomas) * 100}%` }"
-        ></div>
-        <div
-          v-if="countOmitidas > 0"
-          class="absolute top-0 h-full bg-[#f43f5e] transition-all duration-700"
-          :style="{
-            left: `${(countTomadas / totalTomas) * 100}%`,
-            width: `${(countOmitidas / totalTomas) * 100}%`,
-          }"
-        ></div>
-      </div>
-    </div>
-
     <!-- ── Banner próxima toma ────────────────────────────── -->
     <div
       v-if="proximaTomaBanner"
@@ -151,9 +129,8 @@ const estadoConfig: Record<EstadoToma, { bg: string; text: string; border: strin
           {{ proximaTomaBanner.med.nombre }}
           <span
             class="ml-2 text-[11px] font-bold px-2 py-0.5 rounded-full"
-            :style="{ background: proximaTomaBanner.med.colorBg, color: proximaTomaBanner.med.colorAccent }"
           >
-            {{ proximaTomaBanner.med.dosis }} {{ proximaTomaBanner.med.unidad }}
+            {{ proximaTomaBanner.med.dosis }}
           </span>
         </p>
       </div>
@@ -168,115 +145,78 @@ const estadoConfig: Record<EstadoToma, { bg: string; text: string; border: strin
     <!-- ── Tarjetas por medicamento ────────────────────────── -->
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
       <div
-        v-for="med in medicamentos"
+        v-for="med in medicamentosConTomasApi"
         :key="med.id"
-        class="group relative bg-white rounded-[18px] border border-[#e1e8f5] shadow-[0_2px_12px_rgba(13,27,62,0.08)] overflow-hidden flex flex-col transition-all duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(13,27,62,0.12)] hover:border-[rgba(51,102,238,0.15)]"
+        class="group relative bg-white rounded-[18px] border border-[#e1e8f5] shadow-[0_2px_12px_rgba(13,27,62,0.08)] overflow-hidden flex flex-col transition-all duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(13,27,62,0.12)]"
       >
-        <!-- Barra de acento izquierda con color del medicamento -->
+        <!-- Franja de acento izquierda por estado -->
         <div
-          class="absolute left-0 top-0 bottom-0 w-1 rounded-r-full"
-          :style="{ background: med.colorAccent }"
+          class="absolute left-0 top-0 bottom-0 w-[3.5px]"
+          :style="{ background: estadoConfig[med.estadoToma]?.text ?? '#8a97b4' }"
         ></div>
 
         <div class="pl-6 pr-5 pt-5 pb-5 flex flex-col gap-4">
 
-          <!-- Fila superior: icono + nombre + anillo de progreso -->
+          <!-- Fila superior: icono + nombre + badge de estado -->
           <div class="flex items-start gap-3">
-            <!-- Icono -->
+
+            <!-- Icono circular por estado -->
             <div
-              class="w-10 h-10 rounded-[12px] flex items-center justify-center shrink-0 text-base transition-all duration-[250ms] group-hover:scale-110 group-hover:shadow-lg"
-              :style="{ background: med.colorBg, color: med.colorAccent }"
+              class="w-10 h-10 rounded-[12px] flex items-center justify-center shrink-0"
+              :style="{ background: estadoConfig[med.estadoToma]?.bg ?? '#f1f5f9' }"
             >
-              <i :class="`pi ${med.icon}`"></i>
+              <i
+                class="pi text-base"
+                :class="estadoConfig[med.estadoToma]?.icon ?? 'pi-circle'"
+                :style="{ color: estadoConfig[med.estadoToma]?.text ?? '#8a97b4' }"
+              ></i>
             </div>
 
             <!-- Nombre y categoría -->
             <div class="flex-1 min-w-0 pt-0.5">
               <h3 class="text-[14px] font-bold text-[#0d1b3e] tracking-[-0.02em] truncate m-0 mb-[3px]">
-                {{ med.nombre }}
+                {{ med.medicamentoNombre }}
               </h3>
-              <div class="flex items-center gap-1.5 flex-wrap">
-                <span class="text-[11px] text-[#8a97b4]">{{ med.categoria }}</span>
-                <span
-                  class="text-[10px] font-bold px-1.5 py-0.5 rounded-[5px]"
-                  :style="{ background: med.colorBg, color: med.colorAccent }"
-                >
-                  {{ med.dosis }} {{ med.unidad }}
-                </span>
-              </div>
+              <p class="text-[11px] text-[#8a97b4] m-0">
+                {{ med.categoriaNombre }}
+                <span class="text-[#d1d9ec] mx-1">·</span>
+                Cada {{ med.frecuenciaHora }}h
+              </p>
             </div>
 
-            <!-- Anillo SVG de progreso -->
-            <div class="relative w-10 h-10 shrink-0">
-              <svg class="w-10 h-10 -rotate-90" viewBox="0 0 36 36">
-                <circle
-                  cx="18" cy="18" r="15.9155"
-                  fill="none"
-                  stroke="#e1e8f5"
-                  stroke-width="3"
-                />
-                <circle
-                  cx="18" cy="18" r="15.9155"
-                  fill="none"
-                  :stroke="med.colorAccent"
-                  stroke-width="3"
-                  stroke-linecap="round"
-                  :stroke-dasharray="getDashArray(med)"
-                  class="transition-all duration-700"
-                />
-              </svg>
-              <span
-                class="absolute inset-0 flex items-center justify-center text-[9px] font-extrabold tracking-tight"
-                :style="{ color: med.colorAccent }"
-              >
-                {{ getPorcentaje(med) }}%
-              </span>
-            </div>
+            <!-- Badge de estado -->
+            <span
+              class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full border shrink-0"
+              :style="{
+                background: estadoConfig[med.estadoToma]?.bg ?? '#f1f5f9',
+                color: estadoConfig[med.estadoToma]?.text ?? '#8a97b4',
+                borderColor: estadoConfig[med.estadoToma]?.border ?? '#e1e8f5'
+              }"
+            >
+              <i class="pi text-[9px]" :class="estadoConfig[med.estadoToma]?.icon"></i>
+              {{ estadoConfig[med.estadoToma]?.label }}
+            </span>
           </div>
 
           <!-- Separador punteado -->
           <div class="border-t border-dashed border-[#e1e8f5]"></div>
 
-          <!-- Pills de tomas -->
-          <div class="flex flex-wrap gap-2">
-            <div
-              v-for="toma in med.tomas"
-              :key="toma.id"
-              class="relative flex items-center gap-[5px] text-[11px] font-semibold px-3 py-[7px] rounded-full border transition-all duration-200 select-none"
+          <!-- Pie de tarjeta: hora + dosis -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <i class="pi pi-clock text-[11px] text-[#8a97b4]"></i>
+              <span class="text-[12px] font-semibold text-[#5a6a8a] tabular-nums">
+                {{ new Date(med.fechaHoraProgramada).toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' }) }}
+              </span>
+            </div>
+            <span
+              class="text-[11px] font-bold px-2.5 py-1 rounded-[6px]"
               :style="{
-                background: estadoConfig[toma.estado].bg,
-                color: estadoConfig[toma.estado].text,
-                borderColor: estadoConfig[toma.estado].border,
+                background: estadoConfig[med.estadoToma]?.bg ?? '#f1f5f9',
+                color: estadoConfig[med.estadoToma]?.text ?? '#8a97b4'
               }"
             >
-              <i :class="`pi ${estadoConfig[toma.estado].icon}`" class="text-[10px]"></i>
-              <span class="font-bold">{{ toma.hora }}</span>
-              <span class="opacity-60 text-[10px]">{{ estadoConfig[toma.estado].label }}</span>
-
-              <!-- Indicador pulsante si es la próxima toma -->
-              <span
-                v-if="isProxima(toma.id)"
-                class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-white animate-ping"
-                :style="{ background: med.colorAccent }"
-              ></span>
-              <span
-                v-if="isProxima(toma.id)"
-                class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-white"
-                :style="{ background: med.colorAccent }"
-              ></span>
-            </div>
-          </div>
-
-          <!-- Barra de progreso lineal + contador -->
-          <div class="flex items-center gap-3">
-            <div class="flex-1 h-1.5 bg-[#f0f4fb] rounded-full overflow-hidden">
-              <div
-                class="h-full rounded-full transition-all duration-700"
-                :style="{ width: `${getPorcentaje(med)}%`, background: med.colorAccent }"
-              ></div>
-            </div>
-            <span class="text-[10px] font-bold text-[#8a97b4] shrink-0 tabular-nums">
-              {{ getTomadas(med) }}/{{ med.tomas.length }}
+              {{ med.dosis }} mg
             </span>
           </div>
         </div>

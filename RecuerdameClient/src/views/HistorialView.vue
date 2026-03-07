@@ -262,12 +262,12 @@ onMounted(cargarTomas)
                   <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-[#3366ee]/10 to-[#3366ee]/20 flex items-center justify-center shrink-0">
                     <i class="pi pi-heart-fill text-[10px] text-[#3366ee]"></i>
                   </div>
-                  <span class="font-semibold text-[#0d1b3e]">{{ toma.medicamentoNombre || toma.medicamento?.nombre || '—' }}</span>
+                  <span class="font-semibold text-[#0d1b3e]">{{ toma.medicamentoNombre || toma.medicamentoNombre || '—' }}</span>
                 </div>
               </td>
               <!-- Categoría -->
               <td class="px-5 py-3.5 text-[#4a5878]">
-                {{ toma.categoriaNombre || toma.medicamento?.CategoriasName || '—' }}
+                {{ toma.categoriaNombre || toma.categoriaNombre || '—' }}
               </td>
               <!-- Estado -->
               <td class="px-5 py-3.5">

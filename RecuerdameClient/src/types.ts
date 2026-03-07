@@ -80,9 +80,10 @@ export interface TomaProgramada {
     fechaHoraConfirmacion: Date
     fechaHoraProgramada: Date
     estadoToma: EstadoToma
-    medicamento: Medicamento
     medicamentoNombre: string
     categoriaNombre: string
+    dosis: number
+    frecuenciaHora: number
 }
 
 export interface TomaProgramadaRequest {

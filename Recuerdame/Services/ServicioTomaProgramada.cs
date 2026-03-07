@@ -24,8 +24,9 @@ namespace Recuerdame.Services
                 FechaConfirmacion = m.FechaConfirmacion,
                 EstadoToma = m.EstadoToma,
                 MedicamentoNombre = m.Medicamento.Nombre,
-                CategoriaNombre = m.Medicamento.CategoriaMedicamento.Nombre
-
+                CategoriaNombre = m.Medicamento.CategoriaMedicamento.Nombre,
+                Dosis = m.Medicamento.Dosis,
+                FrecuenciaHora = m.Medicamento.FrecuenciaHora,
             }).ToList();
 
             return new ResultadoPaginado<TomaPogramadaDto>

@@ -7,6 +7,7 @@ import type { MedicamentoConTomas } from '../data/tomasProgramadas.ts'
 import { TomaProgramadaService } from '../services/tomaProgramadaService.ts'
 import { MedicamentoService } from '../services/medicamentoService.ts'
 import { EstadoToma } from '../enums/enums.ts'
+import type { TomaProgramada } from '../types.ts'
 
 const tomasPendientes = ref(0)
 const tomasRealizadas = ref(0)
@@ -34,7 +35,6 @@ const cargarTomasProgramadas = async () => {
     service.getTomas(),
     medicamentoService.getMedicamentos(),
   ])
-
   const tomas = tomasResponse.items
 
   cantidadDeMedicamentos.value = medicamentos.length
@@ -50,33 +50,6 @@ const cargarTomasProgramadas = async () => {
   proximaToma.value = siguiente
     ? siguiente.toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' })
     : '--:--'
-
-  // Agrupar tomas por medicamento para TomaProgramadaSection
-  const mapa = new Map<number, MedicamentoConTomas>()
-  tomas.forEach(toma => {
-    if (!mapa.has(toma.medicamentoId)) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const color = COLORES[mapa.size % COLORES.length]!
-      mapa.set(toma.medicamentoId, {
-        id: toma.medicamentoId,
-        nombre: toma.medicamentoNombre,
-        dosis: toma.medicamento?.dosis ?? 0,
-        unidad: 'mg',
-        categoria: toma.categoriaNombre,
-        colorAccent: color.colorAccent,
-        colorBg: color.colorBg,
-        colorText: color.colorText,
-        icon: color.icon,
-        tomas: [],
-      })
-    }
-    mapa.get(toma.medicamentoId)!.tomas.push({
-      id: toma.id,
-      hora: new Date(toma.fechaHoraProgramada).toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' }),
-      estado: toma.estadoToma,
-    })
-  })
-  medicamentosConTomasApi.value = Array.from(mapa.values())
 }
 
 onMounted(() => {

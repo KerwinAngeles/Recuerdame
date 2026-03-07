@@ -10,11 +10,6 @@ export interface MedicamentoConTomas {
   id: number
   nombre: string
   dosis: number
-  unidad: string
   categoria: string
-  colorAccent: string
-  colorBg: string
-  colorText: string
-  icon: string
   tomas: TomaItem[]
 }
