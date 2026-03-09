@@ -28,16 +28,8 @@ const estadoOpciones = [
 const cargarTomas = async () => {
   loading.value = true
   try {
-    const result = await TomaProgramadaService.getInstance().getTomas({
-      estadoToma: filtroEstado.value ?? undefined,
-      fechaDesde: filtroFechaDesde.value || undefined,
-      fechaHasta: filtroFechaHasta.value || undefined,
-      pagina: paginaActual.value,
-      tamanoPagina: tamanoPagina.value,
-    })
-    tomas.value = result.items
-    totalRegistros.value = result.totalRegistros
-    totalPaginas.value = result.totalPaginas
+    const result = await TomaProgramadaService.getInstance().getTomas()
+    tomas.value = result
   } finally {
     loading.value = false
   }

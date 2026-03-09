@@ -26,9 +26,10 @@ export class TomaProgramadaService extends HttpService {
         return TomaProgramadaService.instance
     }
 
-    async getTomas(filtros?: TomaProgramadaFiltros): Promise<PaginatedDatos<TomaProgramada>> {
-        const response = await this.http.get<ApiResponse<PaginatedDatos<TomaProgramada>>>(this.enpoint, { params: filtros });
-        return response.data.datos;
+    async getTomas(): Promise<TomaProgramada[]> {
+        const response = await this.http.get<ApiResponse<PaginatedDatos<TomaProgramada>>>(this.enpoint);
+        console.log("Response: " + response.data.datos)
+        return response.data.datos.items;
     }
 
     async getCantidadDeTomasRealizadas(): Promise<number> {

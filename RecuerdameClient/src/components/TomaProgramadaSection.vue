@@ -1,15 +1,13 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import type { MedicamentoConTomas} from '@/data/tomasProgramadas'
 import { EstadoToma } from '@/enums/enums'
 import { TomaProgramadaService } from '@/services/tomaProgramadaService'
 import type { TomaProgramada } from '@/types';
 
-const props = defineProps<{ 
-  medicamentos: MedicamentoConTomas[]
+const props = defineProps<{
   countTomadas: number
   countPendientes: number
-  countOmitidas: number
+  countCanceladas: number
 }>()
 
 const medicamentosConTomasApi = ref<TomaProgramada[]>([]);
@@ -18,7 +16,7 @@ const cargarTomasProgramadas = async () => {
   const service = TomaProgramadaService.getInstance();
   const tomas = await service.getTomas();
   const mapa = new Map<number, TomaProgramada>();
-  tomas.items.forEach(toma => {
+  tomas.forEach(toma => {
     if (!mapa.has(toma.medicamentoId)) {
       mapa.set(toma.medicamentoId, {
         id: toma.medicamentoId,
@@ -41,39 +39,16 @@ onMounted(() => {
   cargarTomasProgramadas()
 })
 
-// Hora actual en formato HH:MM para comparar con las tomas
 const now = new Date()
-const horaActual = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
 const fechaHoy = now.toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' })
 
-// Totales globales
-const totalTomas = computed(() => props.countTomadas + props.countPendientes + props.countOmitidas)
-
-const porcentajeGlobal = computed(() =>
-  totalTomas.value ? Math.round((props.countTomadas / totalTomas.value) * 100) : 0
-)
-
 // Próxima toma pendiente más cercana a la hora actual
-const proximaTomaId = computed(() => {
-  let nextId: number | null = null
-  let nextHora = '99:99'
-  for (const med of props.medicamentos) {
-    for (const toma of med.tomas) {
-      if (toma.estado === EstadoToma.Pendiente && toma.hora >= horaActual && toma.hora < nextHora) {
-        nextHora = toma.hora
-        nextId = toma.id
-      }
-    }
-  }
-  return nextId
-})
-
-const proximaTomaBanner = computed(() => {
-  for (const med of props.medicamentos) {
-    const toma = med.tomas.find(t => t.id === proximaTomaId.value)
-    if (toma) return { med, toma }
-  }
-  return null
+const proximaTomaBanner = computed<TomaProgramada | null>(() => {
+  const ahora = new Date()
+  const pending = medicamentosConTomasApi.value
+    .filter(med => med.estadoToma === EstadoToma.Pendiente && new Date(med.fechaHoraProgramada) >= ahora)
+  pending.sort((a, b) => new Date(a.fechaHoraProgramada).getTime() - new Date(b.fechaHoraProgramada).getTime())
+  return pending[0] ?? null
 })
 
 
@@ -82,6 +57,7 @@ const estadoConfig: Record<EstadoToma, { bg: string; text: string; border: strin
   [EstadoToma.Pendiente]: { bg: '#eef4ff', text: '#3366ee', border: '#bcd3ff', icon: 'pi-clock',  label: 'Pendiente' },
   [EstadoToma.Cancelada]:   { bg: '#fff1f2', text: '#e11d48', border: '#fecdd3', icon: 'pi-times',  label: 'Cancelado'   },
 }
+
 </script>
 
 <template>
@@ -98,7 +74,7 @@ const estadoConfig: Record<EstadoToma, { bg: string; text: string; border: strin
           Tomas Programadas
         </h2>
         <p class="text-[13px] text-[#8a97b4] m-0">
-          {{ countTomadas }} de {{ totalTomas }} dosis completadas hoy
+          {{ countTomadas }} de {{ countPendientes }} dosis completadas hoy
         </p>
       </div>
       <button class="border-none bg-transparent text-[13px] font-semibold text-[#3366ee] cursor-pointer p-0 transition-colors duration-150 whitespace-nowrap hover:text-[#1a3fb5] self-start md:self-end mb-0.5">
@@ -124,13 +100,13 @@ const estadoConfig: Record<EstadoToma, { bg: string; text: string; border: strin
       <div class="flex-1 min-w-0">
         <p class="text-[10px] font-bold uppercase tracking-[0.1em] text-white/50 m-0 mb-0.5">Próxima Toma</p>
         <p class="text-[15px] font-bold text-white m-0 tracking-[-0.02em]">
-          {{ proximaTomaBanner.toma.hora }}
+          {{ new Date(proximaTomaBanner.fechaHoraProgramada).toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' }) }}
           <span class="text-white/60 font-semibold mx-1.5">—</span>
-          {{ proximaTomaBanner.med.nombre }}
+          {{ proximaTomaBanner.medicamentoNombre }}
           <span
             class="ml-2 text-[11px] font-bold px-2 py-0.5 rounded-full"
           >
-            {{ proximaTomaBanner.med.dosis }}
+            {{ proximaTomaBanner.dosis }} mg
           </span>
         </p>
       </div>

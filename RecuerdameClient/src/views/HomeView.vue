@@ -11,7 +11,7 @@ import type { TomaProgramada } from '../types.ts'
 
 const tomasPendientes = ref(0)
 const tomasRealizadas = ref(0)
-const tomasOmitidas = ref(0)
+const tomasCanceladas = ref(0)
 const cantidadDeMedicamentos = ref(0)
 const dosisDeHoy = ref(0)
 const proximaToma = ref<string>("--:--")
@@ -35,14 +35,18 @@ const cargarTomasProgramadas = async () => {
     service.getTomas(),
     medicamentoService.getMedicamentos(),
   ])
-  const tomas = tomasResponse.items
-
+  console.log("Medicamentos: " + medicamentos)
+  const tomas = tomasResponse
+  console.log("Tomas: " + tomas.filter(t => t.estadoToma.toString() === EstadoToma.Tomada).length)
+  console.log("Medicamentos: " + medicamentos.length)
   cantidadDeMedicamentos.value = medicamentos.length
   tomasRealizadas.value = tomas.filter(t => t.estadoToma.toString() === EstadoToma.Tomada).length
   tomasPendientes.value = tomas.filter(t => t.estadoToma.toString() === EstadoToma.Pendiente).length
-  tomasOmitidas.value = tomas.filter(t => t.estadoToma.toString() === EstadoToma.Cancelada).length
+  tomasCanceladas.value = tomas.filter(t => t.estadoToma.toString() === EstadoToma.Cancelada).length
   dosisDeHoy.value = tomas.filter(t => new Date(t.fechaHoraProgramada).toDateString() === ahora.toDateString()).length
-
+  console.log("Pendientes: " + tomasPendientes.value)
+  console.log("Canceladas: " + tomasCanceladas.value)
+  console.log("Realizadas: " + tomasRealizadas.value)
   const siguiente = tomas
     .map(t => new Date(t.fechaHoraProgramada))
     .filter(f => f.toDateString() === ahora.toDateString() && f > ahora)
@@ -91,7 +95,7 @@ onMounted(() => {
       :medicamentos="medicamentosConTomasApi"
       :countTomadas="tomasRealizadas"
       :countPendientes="tomasPendientes"
-      :countOmitidas="tomasOmitidas"
+      :countCanceladas="tomasCanceladas"
     />
   </div>
 </template>
