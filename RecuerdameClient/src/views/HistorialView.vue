@@ -63,7 +63,7 @@ const paginasVisibles = computed(() => {
 })
 
 const estadoBadge = (estado: EstadoToma) => {
-  switch (estado?.toString()) {
+  switch (estado) {
     case EstadoToma.Tomada:
       return { label: 'Tomada', bg: '#dcfce7', color: '#15803d', dot: '#22c55e' }
     case EstadoToma.Cancelada:
@@ -85,7 +85,7 @@ const formatFecha = (fecha: Date | string) => {
 }
 
 const contadorEstado = (estado: EstadoToma) =>
-  tomas.value.filter(t => t.estadoToma?.toString() === estado).length
+  tomas.value.filter(t => t.estadoToma == estado).length
 
 onMounted(cargarTomas)
 </script>

@@ -62,5 +62,11 @@ namespace Recuerdame.Repositories
                 TamanoPagina = filtros.TamanoPagina
             };
         }
+
+        public async Task<List<TomaProgramada>> TomasVencidas(DateTime ahora)
+        {
+            var tomasVencidas = await _context.TomaProgramada.Where(t => t.FechaHoraProgramada < ahora && t.EstadoToma == Enums.EstadoToma.Pendiente).ToListAsync();
+            return tomasVencidas;
+        }
     }
 }

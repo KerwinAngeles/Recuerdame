@@ -17,6 +17,7 @@ namespace Recuerdame.Services
         public async Task<ResultadoPaginado<TomaPogramadaDto>> AllTomasProgramadas(TomaProgramadaFiltro filtros)
         {
             var result = await _repositorioTomaProgramda.GetAllFiltrado(filtros);
+
             var items = result.Items.Select(m => new TomaPogramadaDto
             {
                 MedicamentoId = m.MedicamentoId,
@@ -27,6 +28,7 @@ namespace Recuerdame.Services
                 CategoriaNombre = m.Medicamento.CategoriaMedicamento.Nombre,
                 Dosis = m.Medicamento.Dosis,
                 FrecuenciaHora = m.Medicamento.FrecuenciaHora,
+
             }).ToList();
 
             return new ResultadoPaginado<TomaPogramadaDto>

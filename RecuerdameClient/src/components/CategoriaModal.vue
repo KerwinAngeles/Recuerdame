@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, nextTick } from 'vue'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
@@ -38,6 +38,14 @@ watch(() => props.visible, (newVal) => {
     }
   }
 })
+
+const toUpper = (event: Event, setter: (val: string) => void) => {
+  const target = event.target as HTMLInputElement | HTMLTextAreaElement
+  const start = target.selectionStart
+  const end = target.selectionEnd
+  setter(target.value.toUpperCase())
+  nextTick(() => target.setSelectionRange(start, end))
+}
 
 const close = () => {
   emit('update:visible', false)
@@ -79,14 +87,14 @@ const save = () => {
       <!-- Nombre -->
       <div class="flex flex-col gap-2">
         <label class="text-[13px] font-semibold text-[#4a5878]">Nombre de la categoría <span class="text-rose-500">*</span></label>
-        <InputText v-model="formData.nombre" placeholder="Ej. Analgésicos" class="w-full text-sm border focus:border-[#3366ee] rounded-xl px-3 py-2.5 transition-colors shadow-sm" :class="errors.nombre ? 'border-rose-500 focus:border-rose-500' : 'border-[#e1e8f5]'" />
+        <InputText :value="formData.nombre" @input="toUpper($event, v => formData.nombre = v)" placeholder="Ej. Analgésicos" class="w-full text-sm border focus:border-[#3366ee] rounded-xl px-3 py-2.5 transition-colors shadow-sm" :class="errors.nombre ? 'border-rose-500 focus:border-rose-500' : 'border-[#e1e8f5]'" />
         <span v-if="errors.nombre" class="text-rose-500 text-[11px] font-medium">{{ errors.nombre }}</span>
       </div>
 
       <!-- Descripción -->
       <div class="flex flex-col gap-2">
         <label class="text-[13px] font-semibold text-[#4a5878]">Descripción</label>
-        <textarea v-model="formData.descripcion" rows="3" placeholder="Ingresa una breve descripción detallando la familia terapéutica..." class="w-full text-sm border border-[#e1e8f5] focus:border-[#3366ee] rounded-xl px-3 py-2.5 outline-none transition-colors shadow-sm resize-none"></textarea>
+        <textarea :value="formData.descripcion" @input="toUpper($event, v => formData.descripcion = v)" rows="3" placeholder="Ingresa una breve descripción detallando la familia terapéutica..." class="w-full text-sm border border-[#e1e8f5] focus:border-[#3366ee] rounded-xl px-3 py-2.5 outline-none transition-colors shadow-sm resize-none"></textarea>
       </div>
 
       <div class="flex items-center gap-3 mt-2" v-if="mode === 'edit'">

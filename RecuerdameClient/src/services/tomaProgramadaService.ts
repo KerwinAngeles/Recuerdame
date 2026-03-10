@@ -1,5 +1,5 @@
 import { HttpService } from "./httpservice";
-import type { ApiResponse, PaginatedDatos, TomaProgramada } from "../types";
+import type { ApiResponse, PaginatedDatos, TomaProgramada, TomaProgramadaRequest } from "../types";
 import { EstadoToma } from "../enums/enums";
 
 
@@ -28,23 +28,23 @@ export class TomaProgramadaService extends HttpService {
 
     async getTomas(): Promise<TomaProgramada[]> {
         const response = await this.http.get<ApiResponse<PaginatedDatos<TomaProgramada>>>(this.enpoint);
-        console.log("Response: " + response.data.datos)
+        console.log("Response getTomas: " + response.data.datos.items.filter(t => t.estadoToma === EstadoToma.Pendiente).length)
         return response.data.datos.items;
     }
 
     async getCantidadDeTomasRealizadas(): Promise<number> {
         const response = await this.http.get<ApiResponse<PaginatedDatos<TomaProgramada>>>(this.enpoint);
-        return response.data.datos.items.filter(t => t.estadoToma.toString() === EstadoToma.Tomada).length;
+        return response.data.datos.items.filter(t => t.estadoToma == EstadoToma.Tomada).length;
     }
 
     async getCantidadDeTomasPendientes(): Promise<number> {
         const response = await this.http.get<ApiResponse<PaginatedDatos<TomaProgramada>>>(this.enpoint);
-        return response.data.datos.items.filter(t => t.estadoToma.toString() === EstadoToma.Pendiente).length;
+        return response.data.datos.items.filter(t => t.estadoToma == EstadoToma.Pendiente).length;
     }
 
     async getCantidadDeTomasOmitidas(): Promise<number> {
         const response = await this.http.get<ApiResponse<PaginatedDatos<TomaProgramada>>>(this.enpoint);
-        return response.data.datos.items.filter(t => t.estadoToma.toString() === EstadoToma.Cancelada).length;
+        return response.data.datos.items.filter(t => t.estadoToma == EstadoToma.Cancelada).length;
     }
 
     async getDosisDeHoy(): Promise<number> {
@@ -63,6 +63,10 @@ export class TomaProgramadaService extends HttpService {
             });
         }
         return "6:00";
+    }
+
+    async updateToma(id: number, request: TomaProgramadaRequest): Promise<void> {
+        await this.http.put(`${this.enpoint}/${id}`, request);
     }
 
 }

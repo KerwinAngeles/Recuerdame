@@ -33,6 +33,7 @@ builder.Services.AddScoped<IRepositorioTomaProgramada, RepositorioTomaProgramada
 builder.Services.AddScoped<ServicioMedicamento>();
 builder.Services.AddScoped<ServicioCategoriaMedicamento>();
 builder.Services.AddScoped<ServicioTomaProgramada>();
+builder.Services.AddHostedService<TomasCancelacionWorker>();
 
 // ── logs ────────────────────────────────────────────────────────────────
 builder.AddSerilogLogging();

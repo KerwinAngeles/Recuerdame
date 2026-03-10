@@ -7,5 +7,6 @@ namespace Recuerdame.Interfaces
     public interface IRepositorioTomaProgramada : IRepositorioGenerico<TomaProgramada>
     {
         Task<ResultadoPaginado<TomaProgramada>> GetAllFiltrado(TomaProgramadaFiltro filtros);
+        Task<List<TomaProgramada>> TomasVencidas(DateTime ahora);
     }
 }

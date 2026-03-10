@@ -17,15 +17,12 @@ const dosisDeHoy = ref(0)
 const proximaToma = ref<string>("--:--")
 const medicamentosConTomasApi = ref<MedicamentoConTomas[]>([])
 
-const COLORES = [
-  { colorAccent: '#3366ee', colorBg: '#eef4ff', colorText: '#3366ee', icon: 'pi-heart-fill' },
-  { colorAccent: '#10b981', colorBg: '#ecfdf5', colorText: '#059669', icon: 'pi-bolt' },
-  { colorAccent: '#8b5cf6', colorBg: '#f5f3ff', colorText: '#7c3aed', icon: 'pi-heart' },
-  { colorAccent: '#f59e0b', colorBg: '#fffbeb', colorText: '#d97706', icon: 'pi-star-fill' },
-  { colorAccent: '#ef4444', colorBg: '#fff1f2', colorText: '#dc2626', icon: 'pi-exclamation-circle' },
-]
-
-
+const fecha = new Date();
+const fechaFormateada = fecha.toLocaleDateString('es-Es', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric'
+})
 const cargarTomasProgramadas = async () => {
   const service = TomaProgramadaService.getInstance()
   const medicamentoService = MedicamentoService.getInstance()
@@ -37,12 +34,12 @@ const cargarTomasProgramadas = async () => {
   ])
   console.log("Medicamentos: " + medicamentos)
   const tomas = tomasResponse
-  console.log("Tomas: " + tomas.filter(t => t.estadoToma.toString() === EstadoToma.Tomada).length)
+  console.log("Tomas: " + tomas.filter(t => t.estadoToma === EstadoToma.Tomada).length)
   console.log("Medicamentos: " + medicamentos.length)
   cantidadDeMedicamentos.value = medicamentos.length
-  tomasRealizadas.value = tomas.filter(t => t.estadoToma.toString() === EstadoToma.Tomada).length
-  tomasPendientes.value = tomas.filter(t => t.estadoToma.toString() === EstadoToma.Pendiente).length
-  tomasCanceladas.value = tomas.filter(t => t.estadoToma.toString() === EstadoToma.Cancelada).length
+  tomasRealizadas.value = tomas.filter(t => t.estadoToma === EstadoToma.Tomada).length
+  tomasPendientes.value = tomas.filter(t => t.estadoToma === EstadoToma.Pendiente).length
+  tomasCanceladas.value = tomas.filter(t => t.estadoToma === EstadoToma.Cancelada).length
   dosisDeHoy.value = tomas.filter(t => new Date(t.fechaHoraProgramada).toDateString() === ahora.toDateString()).length
   console.log("Pendientes: " + tomasPendientes.value)
   console.log("Canceladas: " + tomasCanceladas.value)
@@ -75,7 +72,7 @@ onMounted(() => {
         <h1 class="text-[clamp(1.5rem,3vw,1.875rem)] font-extrabold text-[#0d1b3e] mb-1 m-0 tracking-[-0.035em] leading-[1.1]">
           Panel de Control
         </h1>
-        <p class="text-[13px] text-[#8a97b4] m-0">Resumen clínico del día — 18 de febrero, 2026</p>
+        <p class="text-[13px] text-[#8a97b4] m-0">Resumen clínico del día — {{ fechaFormateada }}</p>
       </div>
       <div class="flex gap-2.5 shrink-0">
         <Button label="Exportar" icon="pi pi-download" class="inline-flex items-center gap-2 px-[1.125rem] py-2.5 border border-[#e1e8f5] rounded-[10px] bg-gradient-to-br from-[#3366ee] to-[#1e4fd8] text-white text-[13px] font-semibold cursor-pointer transition-all duration-200 tracking-[-0.01em] hover:border-[#8eb5ff] hover:text-[#1e4fd8] hover:bg-[#eef4ff]"/>
@@ -91,11 +88,13 @@ onMounted(() => {
     </div>
 
     <!-- ── Tomas Programadas ─────────────────────────────── -->
-    <TomaProgramadaSection 
+    <TomaProgramadaSection
       :medicamentos="medicamentosConTomasApi"
       :countTomadas="tomasRealizadas"
       :countPendientes="tomasPendientes"
       :countCanceladas="tomasCanceladas"
+      :proximaToma="proximaToma"
+      @updated="cargarTomasProgramadas"
     />
   </div>
 </template>
