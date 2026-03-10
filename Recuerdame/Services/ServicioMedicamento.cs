@@ -72,16 +72,18 @@ namespace Recuerdame.Services
 
 
             var fechaActual = medicamento.FechaInicio;
+
             for (int i = 0; i < medicamento.Dosis; i++)
             {
+                
+                fechaActual = fechaActual.AddHours(medicamento.FrecuenciaHora);
+
                 await _repositorioTomaProgramada.AddAsync(new TomaProgramada
                 {
                     MedicamentoId = medicamento.Id,
                     FechaHoraProgramada = fechaActual,
                     EstadoToma = EstadoToma.Pendiente
                 });
-
-                fechaActual = fechaActual.AddHours(medicamento.FrecuenciaHora);
             }
 
             medicamento.FechaFinal = fechaActual.AddHours(-medicamento.FrecuenciaHora);
