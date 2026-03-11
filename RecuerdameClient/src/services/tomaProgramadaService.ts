@@ -32,6 +32,10 @@ export class TomaProgramadaService extends HttpService {
         return response.data.datos.items;
     }
 
+     async updateTomaProgramada(id: number, tomaProgramada: TomaProgramadaRequest) {
+            await this.http.put<ApiResponse<TomaProgramada>>(`${this.enpoint}/${id}`, tomaProgramada)
+        }
+
     async getCantidadDeTomasRealizadas(): Promise<number> {
         const response = await this.http.get<ApiResponse<PaginatedDatos<TomaProgramada>>>(this.enpoint);
         return response.data.datos.items.filter(t => t.estadoToma == EstadoToma.Tomada).length;

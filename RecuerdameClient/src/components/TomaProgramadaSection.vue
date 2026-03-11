@@ -21,6 +21,7 @@ const tomaSeleccionada = ref<TomaProgramada | null>(null)
 
 const abrirModal = (toma: TomaProgramada) => {
   tomaSeleccionada.value = toma
+  console.log( "Toma Seleccionada" + tomaSeleccionada.value.id + tomaSeleccionada.value.categoriaNombre)
   modalVisible.value = true
 }
 

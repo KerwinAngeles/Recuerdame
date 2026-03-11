@@ -11,7 +11,7 @@ namespace Recuerdame.Controllers
     [Produces("application/json")]
     public class TomaProgramadaController : Controller
     {
-       private readonly ServicioTomaProgramada _servicioTomaProgramada;
+        private readonly ServicioTomaProgramada _servicioTomaProgramada;
         public TomaProgramadaController(ServicioTomaProgramada servicioTomaProgramada)
         {
             _servicioTomaProgramada = servicioTomaProgramada;
@@ -26,6 +26,18 @@ namespace Recuerdame.Controllers
         {
             var resultado = await _servicioTomaProgramada.AllTomasProgramadas(filtros);
             return Ok(ApiResponse<ResultadoPaginado<TomaPogramadaDto>>.Exitoso(resultado));
+        }
+
+
+        /// <summary>
+        /// Obtiene tomas programadas con soporte de filtros y paginación.
+        /// </summary>
+        [HttpPut("{id:int}")]
+        [ProducesResponseType(typeof(ApiResponse<TomaPogramadaDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> UpdateTomaProgramada(int id, TomaProgramadaRequest request)
+        {
+            var resultado = await _servicioTomaProgramada.UpdateTomaProgramada(id, request);
+            return Ok(ApiResponse<TomaPogramadaDto>.Exitoso(resultado));
         }
     }
 }

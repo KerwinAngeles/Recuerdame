@@ -6,11 +6,10 @@ import { EstadoToma } from '@/enums/enums'
 
 const tomas = ref<TomaProgramada[]>([])
 const loading = ref(false)
-
 // Filtros
 const filtroEstado = ref<EstadoToma | null>(null)
-const filtroFechaDesde = ref<string>('')
-const filtroFechaHasta = ref<string>('')
+const filtroFechaDesde = ref<string | null>('')
+const filtroFechaHasta = ref<string | null>('')
 
 // Paginación
 const paginaActual = ref(1)
@@ -29,21 +28,34 @@ const cargarTomas = async () => {
   loading.value = true
   try {
     const result = await TomaProgramadaService.getInstance().getTomas()
-    tomas.value = result
-  } finally {
-    loading.value = false
+    return tomas.value = result
+    } finally {
+    return loading.value = false
   }
 }
 
-const aplicarFiltros = () => {
+const aplicarFiltros = computed(() => {
   paginaActual.value = 1
-  cargarTomas()
-}
+    const estado = filtroEstado.value
+    const fechaDesde = filtroFechaDesde.value ? new Date (filtroFechaDesde.value) : null
+    const fechaHasta = filtroFechaHasta.value ? new Date (filtroFechaHasta.value) : null
+    if(fechaHasta){
+      fechaHasta.setHours(23, 59, 59, 999)
+    }
+   return tomas.value.filter(t => {
+      const fecha = new Date(t.fechaHoraProgramada)
+     
+      if (estado && t.estadoToma !== estado) return false
+      if (fechaDesde && fecha < fechaDesde) return false
+      if (fechaHasta && fecha > fechaHasta) return false
 
+      return true
+    })
+  })
 const limpiarFiltros = () => {
   filtroEstado.value = null
-  filtroFechaDesde.value = ''
-  filtroFechaHasta.value = ''
+  filtroFechaDesde.value = null
+  filtroFechaHasta.value = null
   paginaActual.value = 1
   cargarTomas()
 }
@@ -183,25 +195,17 @@ onMounted(cargarTomas)
             class="px-3 py-2 text-[13px] font-medium text-[#0d1b3e] bg-[#f8faff] border border-[#e1e8f5] rounded-xl focus:outline-none focus:border-[#3366ee] focus:ring-2 focus:ring-[#3366ee]/10 transition-all"
           />
         </div>
-
-        <!-- Acciones -->
-        <div class="flex gap-2 mt-auto">
-          <button
-            @click="aplicarFiltros"
-            class="inline-flex items-center gap-2 px-4 py-2 text-[13px] font-semibold text-white bg-gradient-to-r from-[#3366ee] to-[#1e4fd8] rounded-xl shadow-md shadow-blue-500/20 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200"
-          >
-            <i class="pi pi-filter text-[11px]"></i>
-            Filtrar
-          </button>
-          <button
+      </div>
+    </div>
+    <!-- Acciones -->
+    <div class="flex gap-2 mt-auto">
+       <button
             @click="limpiarFiltros"
             class="inline-flex items-center gap-2 px-4 py-2 text-[13px] font-semibold text-[#4a5878] bg-white border border-[#e1e8f5] rounded-xl hover:border-[#bcd3ff] hover:text-[#3366ee] hover:bg-[#eef4ff] transition-all duration-200"
           >
             <i class="pi pi-times text-[11px]"></i>
             Limpiar
           </button>
-        </div>
-      </div>
     </div>
 
     <!-- ── Table ──────────────────────────────────────── -->
@@ -236,7 +240,7 @@ onMounted(cargarTomas)
           </thead>
           <tbody>
             <tr
-              v-for="(toma, idx) in tomas"
+              v-for="(toma, idx) in aplicarFiltros"
               :key="toma.id"
               class="border-b border-[#f0f4fb] last:border-0 hover:bg-[#f8faff] transition-colors"
             >

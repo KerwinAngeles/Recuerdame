@@ -11,7 +11,7 @@ namespace Recuerdame.Services
         private readonly IRepositorioTomaProgramada _repositorioTomaProgramda;
         public ServicioTomaProgramada(IRepositorioTomaProgramada repositorioTomaProgramada)
         {
-            _repositorioTomaProgramda = repositorioTomaProgramada; 
+            _repositorioTomaProgramda = repositorioTomaProgramada;
         }
 
         public async Task<ResultadoPaginado<TomaPogramadaDto>> AllTomasProgramadas(TomaProgramadaFiltro filtros)
@@ -20,6 +20,7 @@ namespace Recuerdame.Services
 
             var items = result.Items.Select(m => new TomaPogramadaDto
             {
+                Id = m.Id,
                 MedicamentoId = m.MedicamentoId,
                 FechaHoraProgramada = m.FechaHoraProgramada,
                 FechaConfirmacion = m.FechaConfirmacion,
@@ -37,6 +38,24 @@ namespace Recuerdame.Services
                 TotalRegistros = result.TotalRegistros,
                 PaginaActual = result.PaginaActual,
                 TamanoPagina = result.TamanoPagina,
+            };
+        }
+
+        public async Task<TomaPogramadaDto> UpdateTomaProgramada(int id, TomaProgramadaRequest request)
+        {
+            var tomaProgramada = await _repositorioTomaProgramda.GetById(id);
+
+            tomaProgramada.FechaConfirmacion = request.FechaConfirmacion;
+            tomaProgramada.EstadoToma = request.EstadoToma;
+            await _repositorioTomaProgramda.UpdateAsync(tomaProgramada, id);
+
+            return new TomaPogramadaDto
+            {
+                Id = tomaProgramada.Id,
+                MedicamentoId = tomaProgramada.MedicamentoId,
+                FechaHoraProgramada = tomaProgramada.FechaHoraProgramada,
+                FechaConfirmacion = tomaProgramada.FechaConfirmacion,
+                EstadoToma = tomaProgramada.EstadoToma,
             };
         }
     }

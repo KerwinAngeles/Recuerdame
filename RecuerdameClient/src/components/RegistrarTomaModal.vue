@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import Dialog from 'primevue/dialog'
-import Button from 'primevue/button'
 import { ref } from 'vue'
 import type { TomaProgramada } from '@/types'
 import { EstadoToma } from '@/enums/enums'
@@ -25,7 +24,7 @@ const registrar = async (estado: EstadoToma) => {
   loading.value = true
   try {
     const service = TomaProgramadaService.getInstance()
-    await service.updateToma(props.toma.id, {
+    await service.updateTomaProgramada(props.toma.id, {
       medicamentoId: props.toma.medicamentoId,
       fechaHora: new Date(props.toma.fechaHoraProgramada),
       estadoToma: estado,
