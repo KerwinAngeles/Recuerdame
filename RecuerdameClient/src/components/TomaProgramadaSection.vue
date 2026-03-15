@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { EstadoToma } from '@/enums/enums'
 import { TomaProgramadaService } from '@/services/tomaProgramadaService'
 import type { TomaProgramada } from '@/types'
@@ -21,7 +21,6 @@ const tomaSeleccionada = ref<TomaProgramada | null>(null)
 
 const abrirModal = (toma: TomaProgramada) => {
   tomaSeleccionada.value = toma
-  console.log( "Toma Seleccionada" + tomaSeleccionada.value.id + tomaSeleccionada.value.categoriaNombre)
   modalVisible.value = true
 }
 
@@ -64,18 +63,32 @@ const cargarTomasProgramadas = async () => {
   medicamentosConTomasApi.value = Array.from(mapa.values())
 }
 
+const now = ref(new Date())
+let clockTimer: ReturnType<typeof setInterval>
+
 onMounted(() => {
   cargarTomasProgramadas()
+  clockTimer = setInterval(() => { now.value = new Date() }, 30_000)
 })
 
-const now = new Date()
-const fechaHoy = now.toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' })
+onUnmounted(() => clearInterval(clockTimer))
+
+const fechaHoy = computed(() =>
+  now.value.toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' })
+)
+
+const medicamentosActivos = computed(() =>
+  medicamentosConTomasApi.value.filter(m => m.medicamentoActivo)
+)
+
+const esBloqueada = (toma: TomaProgramada): boolean =>
+  toma.estadoToma === EstadoToma.Pendiente && new Date(toma.fechaHoraProgramada) > now.value
 
 const proximaTomaBanner = computed<TomaProgramada | null>(() => {
-  const ahora = new Date()
+  const ahora = now.value
   const pending = todasLasTomas.value
     .filter(t =>
-      t.estadoToma === EstadoToma.Pendiente &&
+      t.estadoToma === EstadoToma.Pendiente && t.medicamentoActivo == true &&
       new Date(t.fechaHoraProgramada).toDateString() === ahora.toDateString() &&
       new Date(t.fechaHoraProgramada) > ahora
     )
@@ -190,21 +203,24 @@ const estadoConfig: Record<EstadoToma, {
       </div>
     </div>
 
+    <div v-if="medicamentosActivos.length > 0"></div>
     <!-- ── Grid de tarjetas ────────────────────────────────────────── -->
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
       <div
         v-for="med in medicamentosConTomasApi"
         :key="med.id"
-        class="group relative bg-white rounded-[20px] overflow-hidden flex flex-col transition-all duration-300 ease-out hover:-translate-y-1.5"
+        class="group relative bg-white rounded-[20px] overflow-hidden flex flex-col transition-all duration-300 ease-out"
+        :class="{ 'hover:-translate-y-1.5': !esBloqueada(med) }"
         :style="{
-          border: '1px solid ' + (estadoConfig[med.estadoToma]?.border ?? '#e1e8f5'),
-          boxShadow: '0 2px 16px rgba(13,27,62,0.07)'
+          border: '1px solid ' + (esBloqueada(med) ? '#e1e8f5' : (estadoConfig[med.estadoToma]?.border ?? '#e1e8f5')),
+          boxShadow: '0 2px 16px rgba(13,27,62,0.07)',
+          opacity: esBloqueada(med) ? 0.72 : 1
         }"
       >
         <!-- Barra superior degradada -->
         <div
           class="h-[3.5px] w-full shrink-0"
-          :style="{ background: estadoConfig[med.estadoToma]?.gradient ?? '#8a97b4' }"
+          :style="{ background: esBloqueada(med) ? 'linear-gradient(135deg, #b0b8cc, #c8d0de)' : (estadoConfig[med.estadoToma]?.gradient ?? '#8a97b4') }"
         ></div>
 
         <!-- Fondo tintado sutil -->
@@ -214,7 +230,6 @@ const estadoConfig: Record<EstadoToma, {
         ></div>
 
         <div class="relative px-5 pt-5 pb-5 flex flex-col gap-4">
-
           <!-- Fila superior: icono + nombre + badge -->
           <div class="flex items-start gap-3">
 
@@ -222,14 +237,14 @@ const estadoConfig: Record<EstadoToma, {
             <div
               class="w-11 h-11 rounded-[13px] flex items-center justify-center shrink-0 transition-all duration-300"
               :style="{
-                background: estadoConfig[med.estadoToma]?.bg ?? '#f1f5f9',
-                boxShadow: '0 2px 8px ' + (estadoConfig[med.estadoToma]?.glow ?? 'transparent')
+                background: esBloqueada(med) ? '#f5f7fc' : (estadoConfig[med.estadoToma]?.bg ?? '#f1f5f9'),
+                boxShadow: '0 2px 8px ' + (esBloqueada(med) ? 'rgba(138,151,180,0.1)' : (estadoConfig[med.estadoToma]?.glow ?? 'transparent'))
               }"
             >
               <i
                 class="pi text-[17px]"
-                :class="estadoConfig[med.estadoToma]?.icon ?? 'pi-circle'"
-                :style="{ color: estadoConfig[med.estadoToma]?.text ?? '#8a97b4' }"
+                :class="esBloqueada(med) ? 'pi-lock' : (estadoConfig[med.estadoToma]?.icon ?? 'pi-circle')"
+                :style="{ color: esBloqueada(med) ? '#8a97b4' : (estadoConfig[med.estadoToma]?.text ?? '#8a97b4') }"
               ></i>
             </div>
 
@@ -248,14 +263,14 @@ const estadoConfig: Record<EstadoToma, {
             <!-- Badge de estado -->
             <span
               class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full border shrink-0"
-              :style="{
+              :style="esBloqueada(med) ? { background: '#f5f7fc', color: '#8a97b4', borderColor: '#e1e8f5' } : {
                 background: estadoConfig[med.estadoToma]?.bg,
                 color: estadoConfig[med.estadoToma]?.text,
                 borderColor: estadoConfig[med.estadoToma]?.border
               }"
             >
-              <i class="pi text-[9px]" :class="estadoConfig[med.estadoToma]?.icon"></i>
-              {{ estadoConfig[med.estadoToma]?.label }}
+              <i class="pi text-[9px]" :class="esBloqueada(med) ? 'pi-lock' : estadoConfig[med.estadoToma]?.icon"></i>
+              {{ esBloqueada(med) ? 'Próxima' : estadoConfig[med.estadoToma]?.label }}
             </span>
           </div>
 
@@ -283,7 +298,9 @@ const estadoConfig: Record<EstadoToma, {
 
           <!-- Botón de acción (solo pendientes) -->
           <template v-if="med.estadoToma === EstadoToma.Pendiente">
+            <!-- Toma disponible: botón activo -->
             <button
+              v-if="!esBloqueada(med)"
               @click="abrirModal(med)"
               class="w-full flex items-center justify-center gap-2 py-2.5 rounded-[12px] text-[12px] font-bold text-white border-none cursor-pointer transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
               :style="{ background: estadoConfig[med.estadoToma]?.gradient, boxShadow: '0 4px 14px ' + estadoConfig[med.estadoToma]?.glow }"
@@ -291,6 +308,14 @@ const estadoConfig: Record<EstadoToma, {
               <i class="pi pi-pen-to-square text-[11px]"></i>
               Registrar toma
             </button>
+            <!-- Toma bloqueada: indicador de espera -->
+            <div
+              v-else
+              class="w-full flex items-center justify-center gap-2 py-2.5 rounded-[12px] text-[12px] font-semibold border text-[#8a97b4] bg-[#f5f7fc] border-[#e1e8f5] select-none"
+            >
+              <i class="pi pi-lock text-[11px]"></i>
+              Disponible a las {{ new Date(med.fechaHoraProgramada).toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' }) }}
+            </div>
           </template>
 
           <!-- Confirmación (tomadas) -->

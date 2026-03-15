@@ -14,5 +14,7 @@ namespace Recuerdame.Dtos.TomaProgramada
         public string CategoriaNombre { get; set; }
         public int Dosis { get; set; }
         public int FrecuenciaHora { get; set; }
+        public bool MedicamentoActivo { get; set; }
     }
+
 }

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Recuerdame.Common;
 using Recuerdame.Dtos.Medicamento;
+using Recuerdame.Enums;
 using Recuerdame.Excepciones;
 using Recuerdame.Interfaces;
 using Recuerdame.Model;
@@ -22,6 +23,13 @@ namespace Recuerdame.Repositories
             var medicamento = await _context.Medicamentos.FindAsync(id)
                 ?? throw new NotFoundException("Medicamento", id);
 
+            var tomasProgramadas = await _context.TomaProgramada.Where(m => m.MedicamentoId == medicamento.Id).ToListAsync();
+            foreach (var toma in tomasProgramadas)
+            {
+                toma.EstadoToma = EstadoToma.Cancelada;
+                await _context.SaveChangesAsync();
+
+            }
             medicamento.EstaActivo = false;
             await _context.SaveChangesAsync();
         }

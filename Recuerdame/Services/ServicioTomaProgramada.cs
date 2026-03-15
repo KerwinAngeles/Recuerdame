@@ -29,6 +29,7 @@ namespace Recuerdame.Services
                 CategoriaNombre = m.Medicamento.CategoriaMedicamento.Nombre,
                 Dosis = m.Medicamento.Dosis,
                 FrecuenciaHora = m.Medicamento.FrecuenciaHora,
+                MedicamentoActivo = m.Medicamento.EstaActivo
 
             }).ToList();
 

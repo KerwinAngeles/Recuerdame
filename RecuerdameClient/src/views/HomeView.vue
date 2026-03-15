@@ -7,7 +7,6 @@ import type { MedicamentoConTomas } from '../data/tomasProgramadas.ts'
 import { TomaProgramadaService } from '../services/tomaProgramadaService.ts'
 import { MedicamentoService } from '../services/medicamentoService.ts'
 import { EstadoToma } from '../enums/enums.ts'
-import type { TomaProgramada } from '../types.ts'
 
 const tomasPendientes = ref(0)
 const tomasRealizadas = ref(0)
@@ -32,19 +31,18 @@ const cargarTomasProgramadas = async () => {
     service.getTomas(),
     medicamentoService.getMedicamentos(),
   ])
-  console.log("Medicamentos: " + medicamentos)
   const tomas = tomasResponse
-  console.log("Tomas: " + tomas.filter(t => t.estadoToma === EstadoToma.Tomada).length)
-  console.log("Medicamentos: " + medicamentos.length)
   cantidadDeMedicamentos.value = medicamentos.length
   tomasRealizadas.value = tomas.filter(t => t.estadoToma === EstadoToma.Tomada).length
   tomasPendientes.value = tomas.filter(t => t.estadoToma === EstadoToma.Pendiente).length
   tomasCanceladas.value = tomas.filter(t => t.estadoToma === EstadoToma.Cancelada).length
-  dosisDeHoy.value = tomas.filter(t => new Date(t.fechaHoraProgramada).toDateString() === ahora.toDateString()).length
-  console.log("Pendientes: " + tomasPendientes.value)
-  console.log("Canceladas: " + tomasCanceladas.value)
-  console.log("Realizadas: " + tomasRealizadas.value)
+  dosisDeHoy.value = tomas.
+    filter(
+      t => new Date(t.fechaHoraProgramada).toDateString() === ahora.toDateString() && t.medicamentoActivo == true
+    ).length
+
   const siguiente = tomas
+    .filter(t => t.medicamentoActivo == true)
     .map(t => new Date(t.fechaHoraProgramada))
     .filter(f => f.toDateString() === ahora.toDateString() && f > ahora)
     .sort((a, b) => a.getTime() - b.getTime())[0]

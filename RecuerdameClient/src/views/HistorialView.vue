@@ -235,7 +235,6 @@ onMounted(cargarTomas)
               <th class="text-left px-5 py-3.5 text-[10px] font-bold uppercase tracking-widest text-[#8a97b4] whitespace-nowrap">Medicamento</th>
               <th class="text-left px-5 py-3.5 text-[10px] font-bold uppercase tracking-widest text-[#8a97b4] whitespace-nowrap">Categoría</th>
               <th class="text-left px-5 py-3.5 text-[10px] font-bold uppercase tracking-widest text-[#8a97b4] whitespace-nowrap">Estado</th>
-              <th class="text-left px-5 py-3.5 text-[10px] font-bold uppercase tracking-widest text-[#8a97b4] whitespace-nowrap">Confirmación</th>
             </tr>
           </thead>
           <tbody>

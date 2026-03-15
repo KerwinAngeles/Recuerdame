@@ -84,6 +84,7 @@ export interface TomaProgramada {
     categoriaNombre: string
     dosis: number
     frecuenciaHora: number
+    medicamentoActivo: boolean
 }
 
 export interface TomaProgramadaRequest {
