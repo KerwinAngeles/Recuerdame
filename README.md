@@ -22,7 +22,7 @@
 
 ### Panel de Control
 
-![Panel de Control](docs/dashboard.png)
+![Panel de Control](docs/dashboard2.png)
 
 ### Medicamentos
 
