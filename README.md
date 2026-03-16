@@ -21,13 +21,19 @@
 ## Screenshots
 
 ### Panel de Control
-
 ![Panel de Control](docs/dashboard.png)
 
 ### Medicamentos
-
 ![Gestión de medicamentos](docs/medicamentos.png)
 
 ### Historial de Tomas
-
 ![Historial de tomas](docs/historial.png)
+
+## Inicio Rápido
+
+```bash
+# Levantar todos los servicios con Docker
+docker-compose up --build
+```
+
+La aplicación estará disponible en `http://localhost`.
