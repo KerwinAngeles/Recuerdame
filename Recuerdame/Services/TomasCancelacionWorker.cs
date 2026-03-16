@@ -5,8 +5,8 @@
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger _logger;
 
-        // Intervalo de revisión: cada 1 hora
-        private readonly TimeSpan _intervalo = TimeSpan.FromHours(1);
+        // Intervalo de revisión: cada 30 minuto
+        private readonly TimeSpan _intervalo = TimeSpan.FromMinutes(30);
 
         public TomasCancelacionWorker(
             ILogger<TomasCancelacionWorker> logger,
@@ -23,7 +23,7 @@
             // Ejecutar inmediatamente al arrancar
             await CancelarTomasVencidasAsync();
 
-            // Luego repetir cada hora
+            // Luego repetir cada 1 hora
             using PeriodicTimer timer = new(_intervalo);
 
             while (!stoppingToken.IsCancellationRequested &&

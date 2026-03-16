@@ -45,10 +45,5 @@ defineProps<{
       <span class="flex-1">{{ item.label }}</span>
       <span class="w-[5px] h-[5px] rounded-full bg-[#3366ee] opacity-0 transition-opacity duration-200 shrink-0 [.router-link-exact-active_&]:opacity-100"></span>
     </RouterLink>
-
-    <!-- Separator -->
-    <div class="h-px bg-white/[0.05] mx-2.5 my-2"></div>
-
-    <p class="text-[9px] font-bold uppercase tracking-[0.14em] text-[rgba(180,200,255,0.28)] px-2.5 pt-2.5 pb-1.5 m-0">Sistema</p>
   </nav>
 </template>

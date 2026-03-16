@@ -11,23 +11,32 @@ const router = createRouter({
       path: '/',
       name: 'dashboard',
       component: HomeView,
+      meta: { title: 'Dashboard' },
     },
     {
       path: '/medicamentos',
       name: 'Medicamento',
       component: MedicamentoView,
+      meta: { title: 'Medicamentos' },
     },
     {
       path: '/categorias',
       name: 'Categoria',
       component: CategoriaView,
+      meta: { title: 'Categorías' },
     },
     {
       path: '/historial',
       name: 'Historial',
       component: HistorialView,
+      meta: { title: 'Historial' },
     },
   ],
+})
+
+router.afterEach((to) => {
+  const title = to.meta.title as string | undefined
+  document.title = title ? `Recordatorio Medico - ${title}` : 'Recordatorio Medico'
 })
 
 export default router

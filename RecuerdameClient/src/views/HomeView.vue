@@ -4,9 +4,12 @@ import Stat from '../components/Stat.vue'
 import Button from '../components/Button.vue'
 import TomaProgramadaSection from '../components/TomaProgramadaSection.vue'
 import type { MedicamentoConTomas } from '../data/tomasProgramadas.ts'
+import type { TomaProgramada } from '../types.ts'
 import { TomaProgramadaService } from '../services/tomaProgramadaService.ts'
 import { MedicamentoService } from '../services/medicamentoService.ts'
 import { EstadoToma } from '../enums/enums.ts'
+import { ExportarPdfService } from '@/services/exportarPdfService.ts'
+import fechaFormateada from '@/helper/fechaFormate.ts'
 
 const tomasPendientes = ref(0)
 const tomasRealizadas = ref(0)
@@ -15,13 +18,10 @@ const cantidadDeMedicamentos = ref(0)
 const dosisDeHoy = ref(0)
 const proximaToma = ref<string>("--:--")
 const medicamentosConTomasApi = ref<MedicamentoConTomas[]>([])
+const todasLasTomas = ref<TomaProgramada[]>([])
+const pdf = ExportarPdfService.getInstance();
 
-const fecha = new Date();
-const fechaFormateada = fecha.toLocaleDateString('es-Es', {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric'
-})
+
 const cargarTomasProgramadas = async () => {
   const service = TomaProgramadaService.getInstance()
   const medicamentoService = MedicamentoService.getInstance()
@@ -32,6 +32,7 @@ const cargarTomasProgramadas = async () => {
     medicamentoService.getMedicamentos(),
   ])
   const tomas = tomasResponse
+  todasLasTomas.value = tomas
   cantidadDeMedicamentos.value = medicamentos.length
   tomasRealizadas.value = tomas.filter(t => t.estadoToma === EstadoToma.Tomada).length
   tomasPendientes.value = tomas.filter(t => t.estadoToma === EstadoToma.Pendiente).length
@@ -50,6 +51,21 @@ const cargarTomasProgramadas = async () => {
     ? siguiente.toLocaleTimeString('es-DO', { hour: '2-digit', minute: '2-digit' })
     : '--:--'
 }
+
+const estadoLabel = (estado: EstadoToma) => {
+  if (estado === EstadoToma.Tomada) return 'Tomada'
+  if (estado === EstadoToma.Cancelada) return 'Cancelada'
+  return 'Pendiente'
+}
+
+const pdfExport = () => pdf.ExportarPdf({
+  tomasRealizadas: tomasRealizadas.value,
+  tomasPendientes: tomasPendientes.value,
+  tomasCanceladas: tomasCanceladas.value,
+  todasLasTomas: todasLasTomas.value.length,
+  data: todasLasTomas.value,
+  estadoLabel
+})
 
 onMounted(() => {
   cargarTomasProgramadas()
@@ -73,7 +89,7 @@ onMounted(() => {
         <p class="text-[13px] text-[#8a97b4] m-0">Resumen clínico del día — {{ fechaFormateada }}</p>
       </div>
       <div class="flex gap-2.5 shrink-0">
-        <Button label="Exportar" icon="pi pi-download" class="inline-flex items-center gap-2 px-[1.125rem] py-2.5 border border-[#e1e8f5] rounded-[10px] bg-gradient-to-br from-[#3366ee] to-[#1e4fd8] text-white text-[13px] font-semibold cursor-pointer transition-all duration-200 tracking-[-0.01em] hover:border-[#8eb5ff] hover:text-[#1e4fd8] hover:bg-[#eef4ff]"/>
+        <Button @click="pdfExport" label="Exportar Historial" icon="pi pi-download" class="inline-flex items-center gap-2 px-[1.125rem] py-2.5 border border-[#e1e8f5] rounded-[10px] bg-gradient-to-br from-[#3366ee] to-[#1e4fd8] text-white text-[13px] font-semibold cursor-pointer transition-all duration-200 tracking-[-0.01em] hover:border-[#8eb5ff] hover:text-[#1e4fd8] hover:bg-[#eef4ff]"/>
       </div>
     </div>
 
